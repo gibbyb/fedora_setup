@@ -10,6 +10,12 @@ fi
 # Ask user for their username and save as a variable
 read -p "Enter your username: " username
 
+# Check if user exists
+if ! id -u "$username" >/dev/null 2>&1; then
+    echo "User $username does not exist. Please check the username and try again."
+    exit 1
+fi 
+
 # UPDATE & INSTALL NECESSARY PACKAGES & RPMFUSION
 
 dnf update -y --refresh
@@ -68,13 +74,12 @@ fi
 if [ ! -d "/home/$username/Pictures/Wallpapers/Best_of_the_best" ]; then
     echo "Creating ~/Pictures/Wallpapers/Best_of_the_best directory"
     mkdir -p /home/$username/Pictures/Wallpapers/Best_of_the_best
-    chown -R $username:$username /home/$username/Pictures 
-    chown -R $username:$username /home/$username/Pictures/Wallpapers/Best_of_the_best
+    chown -R $username:$username /home/$username/Pictures/Wallpapers 
 fi
 
 cp ./Wallpapers/* /home/$username/Pictures/Wallpapers/Best_of_the_best/
-
 chown -R $username:$username /home/$username/Pictures/Wallpapers/Best_of_the_best
+
 cp ./kitty/kitty.conf /home/$username/.config/kitty/kitty.conf
 chown -R $username:$username /home/$username/.config/kitty/kitty.conf
 # Make nautilus extension directory if it doesn't exist 
