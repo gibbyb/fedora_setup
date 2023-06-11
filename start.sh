@@ -16,6 +16,10 @@ if ! id -u "$username" >/dev/null 2>&1; then
     exit 1
 fi 
 
+dnf update -y --refresh
+clear
+echo "Update complete. Beginning script."
+
 # SET UP DNF CONFIG 
 
 echo "Making dnf faster and less bad."
@@ -88,7 +92,7 @@ cp ./kitty/open_any_terminal_extension.py\
 # INSTALL NVIDIA DRIVERS
 
 echo "Updating system & Installing Nvidia Drivers"
-dnf update -y --refresh
+
 dnf install -y kernel-devel
 dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda
 echo "Please wait a good 5 minutes for the drivers to install before rebooting."
