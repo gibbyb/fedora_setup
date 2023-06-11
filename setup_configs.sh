@@ -93,7 +93,7 @@ cp -r ./nvim/lua /home/$username/.config/nvim/lua
 # Install packer.nvim 
 echo "Installing packer.nvim"
 git clone --depth 1 https://github.com/wbthomason/packer.nvim\
- ~/.local/share/nvim/site/pack/packer/start/packer.nvim
+ /home/$username/.local/share/nvim/site/pack/packer/start/packer.nvim
 echo "Opening packer.lua. Source the file and run \":PackerSync\""
 kitty -1 -e "nvim ~/.config/nvim/lua/packer.lua"
 read -p "Once complete, close window & press enter to continue."
