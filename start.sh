@@ -16,28 +16,23 @@ if ! id -u "$username" >/dev/null 2>&1; then
     exit 1
 fi 
 
-# UPDATE & INSTALL NECESSARY PACKAGES & RPMFUSION
-
-dnf update -y --refresh
-dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm\
-    https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
-dnf install -y nodejs
-dnf install -y vim git curl wget python3 python3-pip npm gcc g++\
-    make cmake htop neofetch kernel-devel zsh gnome-tweaks
-dnf groupupdate core -y
-
 # SET UP DNF CONFIG 
 
 echo "Making dnf faster and less bad."
 echo "fastestmirror=True" | tee -a /etc/dnf/dnf.conf
 echo "max_parallel_downloads=10" | tee -a /etc/dnf/dnf.conf
 echo "defaultyes=True" | tee -a /etc/dnf/dnf.conf
-echo "keepcache=True" | tee -a /etc/dnf/dnf.conf
+echo "keepcache=True" | tee -a /etc/dnf/dnf.conf 
 
-# DISABLE WAYLAND
+# UPDATE & INSTALL NECESSARY PACKAGES & RPMFUSION
 
-echo "Disabling Wayland" 
-sed -i 's/^#WaylandEnable=false/WaylandEnable=false/' /etc/gdm/custom.conf
+dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm\
+    https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm 
+dnf groupupdate core -y
+
+dnf install -y nodejs
+dnf install -y vim git curl wget python3 python3-pip npm gcc g++\
+    make cmake htop neofetch gnome-tweaks xclip neovim
 
 # SET UP POWERLINE WITH BASH
 
@@ -59,7 +54,6 @@ else
     echo -e "$code_block" >> /home/$username/.bashrc
     echo "Code block added to .bashrc successfully."
 fi
-
 
 # SET UP KITTY 
 
@@ -89,29 +83,13 @@ if [ ! -d "/usr/share/nautilus-python/extensions" ]; then
 fi
 # Add nautilus extension to open kitty from right click menu
 cp ./kitty/open_any_terminal_extension.py\
- /usr/share/nautilus-python/extensions/open_any_terminal_extension.py 
-
-# SET UP NEOVIM
-
-echo "Installing and Configuring Neovim"
-dnf install -y neovim 
-# Make nvim config directory if it doesn't exists
-if [ ! -d "/home/$username/.config/nvim" ]; then
-    echo "Creating ~/.config/nvim directory"
-    mkdir /home/$username/.config/nvim
-fi
-echo "Copying init.lua and lua directory to ~/.config/nvim"
-cp ./nvim/init.lua /home/$username/.config/nvim/init.lua
-mkdir -p /home/$username/.config/nvim/lua/gib_nvim
-cp ./nvim/lua/gib_nvim/* /home/$username/.config/nvim/lua/gib_nvim/
-chown -R $username:$username /home/$username/.config/nvim
-# Install packer.nvim 
-echo "Installing packer.nvim"
-rm -rf /home/$username/.local/share/nvim/site/pack/packer/start/packer.nvim
-sudo -u $username bash -c "./setup_nvim.sh"
+ /usr/share/nautilus-python/extensions/open_any_terminal_extension.py
 
 # INSTALL NVIDIA DRIVERS
 
+echo "Updating system & Installing Nvidia Drivers"
+dnf update -y --refresh
+dnf install -y kernel-devel
 dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda
 echo "Please wait a good 5 minutes for the drivers to install before rebooting."
 echo "In the meantime, make sure your grub file looks good."
@@ -119,4 +97,4 @@ echo "Remove the duplicate lines \"rd.driver.blacklist=nouveau, modprobe.blackli
 kitty -1 -e bash -c "nvim /etc/default/grub"
 read -p "Once complete, close neovim and press enter to continue."
 grub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg 
-
+echo "Wait 5 minutes then reboot. Once rebooted, run the script (without sudo) to set up neovim"
