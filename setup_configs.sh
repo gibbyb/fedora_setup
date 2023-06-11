@@ -105,7 +105,8 @@ fi
 echo "Copying init.lua and lua directory to ~/.config/nvim"
 cp ./nvim/init.lua /home/$username/.config/nvim/init.lua
 chown -R $username:$username /home/$username/.config/nvim/init.lua
-cp ./nvim/lua/* /home/$username/.config/nvim/lua/
+mkdir -p /home/$username/.config/nvim/lua/gib_nvim
+cp ./nvim/lua/gib_nvim/* /home/$username/.config/nvim/lua/gib_nvim/
 chown -R $username:$username /home/$username/.config/nvim/lua
 # Install packer.nvim 
 echo "Installing packer.nvim"
