@@ -110,11 +110,12 @@ cp ./nvim/lua/gib_nvim/* /home/$username/.config/nvim/lua/gib_nvim/
 chown -R $username:$username /home/$username/.config/nvim/lua
 # Install packer.nvim 
 echo "Installing packer.nvim"
+rm -rf /home/$username/.local/share/nvim/site/pack/packer/start/packer.nvim
 git clone --depth 1 https://github.com/wbthomason/packer.nvim\
  /home/$username/.local/share/nvim/site/pack/packer/start/packer.nvim
 chown -R $username:$username /home/$username/.local/share/nvim/site/pack/packer/start/packer.nvim
 echo "Opening packer.lua. Source the file and run \":PackerSync\""
-kitty -1 -e "nvim /home/$username/.config/nvim/lua/packer.lua"
+kitty -1 -e "nvim /home/$username/.config/nvim/lua/gib_nvim/packer.lua"
 read -p "Once complete, close window & press enter to continue."
 echo "Copying after directory to ~/.config/nvim"
 cp ./nvim/after/* /home/$username/.config/nvim/after/
