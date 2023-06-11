@@ -63,6 +63,16 @@ if [ ! -d "/home/$username/.config/kitty" ]; then
     echo "Creating ~/.config/kitty directory"
     mkdir /home/$username/.config/kitty
 fi
+# Make directory for wallpapers if it doesn't exist 
+if [ ! -d "/home/$username/Pictures/Wallpapers" ]; then
+    echo "Creating ~/Pictures/Wallpapers/Best_of_the_best directory"
+    mkdir -p /home/$username/Pictures/Wallpapers
+fi
+if [ ! -d "/home/$username/Pictures/Wallpapers/Best_of_the_best" ]; then
+    echo "Creating ~/Pictures/Wallpapers/Best_of_the_best directory"
+    mkdir -p /home/$username/Pictures/Wallpapers/Best_of_the_best
+fi
+
 cp -r ./Wallpapers /home/$username/Pictures/Wallpapers/Best_of_the_best
 cp ./kitty/kitty.conf /home/$username/.config/kitty/kitty.conf
 # Make nautilus extension directory if it doesn't exist 
@@ -76,14 +86,14 @@ if [ ! -d "/usr/share/nautilus-python/extensions" ]; then
 fi
 # Add nautilus extension to open kitty from right click menu
 cp ./kitty/open_any_terminal_extension.py\
-/usr/share/nautilus-python/extensions/open_any_terminal_extension.py 
+ /usr/share/nautilus-python/extensions/open_any_terminal_extension.py 
 
 # SET UP NEOVIM
 
 echo "Installing and Configuring Neovim"
 dnf install -y neovim 
 # Make nvim config directory if it doesn't exists
-if [ ! -d "~/.config/nvim" ]; then
+if [ ! -d "/home/$username/.config/nvim" ]; then
     echo "Creating ~/.config/nvim directory"
     mkdir /home/$username/.config/nvim
 fi
