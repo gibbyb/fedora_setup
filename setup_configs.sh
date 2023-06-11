@@ -21,6 +21,7 @@ fi
 dnf update -y --refresh
 dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm\
     https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+dnf install -y nodejs
 dnf install -y vim git curl wget python3 python3-pip npm gcc g++\
     make cmake htop neofetch kernel-devel zsh gnome-tweaks
 dnf groupupdate core -y
