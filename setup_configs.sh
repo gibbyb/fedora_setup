@@ -114,16 +114,7 @@ rm -rf /home/$username/.local/share/nvim/site/pack/packer/start/packer.nvim
 git clone --depth 1 https://github.com/wbthomason/packer.nvim\
  /home/$username/.local/share/nvim/site/pack/packer/start/packer.nvim
 chown -R $username:$username /home/$username/.local/share/nvim/site/pack/packer/start/packer.nvim
-echo "Opening packer.lua. Source the file and run \":PackerSync\""
-kitty -1 -e "nvim /home/$username/.config/nvim/lua/gib_nvim/packer.lua"
-read -p "Once complete, close window & press enter to continue."
-echo "Copying after directory to ~/.config/nvim"
-cp ./nvim/after/* /home/$username/.config/nvim/after/
-chown -R $username:$username /home/$username/.config/nvim/after
-echo "Opening neovim. Run \":Mason\" and install the extensions you want."
-echo "You can also run \":Copilot setup\" to setup GitHub Copilot."
-kitty -1 -e "nvim"
-read -p "Once complete, close neovim and press enter to continue."
+sudo -u $username gib bash -c "./setup_nvim.sh"
 
 # INSTALL NVIDIA DRIVERS
 
@@ -131,11 +122,7 @@ dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda
 echo "Please wait a good 5 minutes for the drivers to install before rebooting."
 echo "In the meantime, make sure your grub file looks good."
 echo "Remove the duplicate lines \"rd.driver.blacklist=nouveau, modprobe.blacklist=nouveau, and nvidia-drm.modeset=1\""
-kitty -1 -e "nvim /etc/default/grub"
+kitty -1 -e bash -c "nvim /etc/default/grub"
 read -p "Once complete, close neovim and press enter to continue."
 grub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg 
-
-# SET WALLPAPERS 
-
-su -l $username -c "gsettings set org.gnome.desktop.background picture-uri file:///home/$username/Pictures/Wallpapers/Best_of_the_best/gloomyroadcatbg.png"
 
