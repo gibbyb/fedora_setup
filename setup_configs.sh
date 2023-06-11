@@ -7,13 +7,16 @@ if [[ $(id -u) -ne 0 ]]; then
     exit 1
 fi
 
+# Ask user for their username and save as a variable
+read -p "Enter your username: " username
+
 # UPDATE & INSTALL NECESSARY PACKAGES & RPMFUSION
 
 dnf update -y --refresh
-dnf install https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-\$(rpm -E %fedora).noarch.rpm\
+dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm\
     https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
 dnf install -y vim git curl wget python3 python3-pip npm gcc g++\
-    make cmake htop neofetch kernel-devel zsh
+    make cmake htop neofetch kernel-devel zsh gnome-tweaks
 dnf groupupdate core -y
 
 # SET UP DNF CONFIG 
@@ -42,11 +45,11 @@ if [ -f /usr/bin/powerline-daemon ]; then\n\
     source /usr/share/powerline/bash/powerline.sh\n\
 fi\n"
 # Check if the code block already exists in .bashrc
-if grep -qF "$code_block" ~/.bashrc; then
+if grep -qF "$code_block" /home/$username/.bashrc; then
     echo "Code block already exists in .bashrc. No changes made."
 else
     # Add the code block to .bashrc
-    echo -e "$code_block" >> ~/.bashrc
+    echo -e "$code_block" >> /home/$username/.bashrc
     echo "Code block added to .bashrc successfully."
 fi
 
@@ -56,12 +59,12 @@ fi
 echo "Installing and Configuring Kitty"
 dnf install -y kitty nautilus-python
 # Make kitty config directory if it doesn't exist 
-if [ ! -d "~/.config/kitty" ]; then
+if [ ! -d "/home/$username/.config/kitty" ]; then
     echo "Creating ~/.config/kitty directory"
-    mkdir ~/.config/kitty
+    mkdir /home/$username/.config/kitty
 fi
-cp -r ./Wallpapers ~/Pictures/Wallpapers/Best_of_the_best
-cp ./kitty/kitty.conf ~/.config/kitty/kitty.conf
+cp -r ./Wallpapers /home/$username/Pictures/Wallpapers/Best_of_the_best
+cp ./kitty/kitty.conf /home/$username/.config/kitty/kitty.conf
 # Make nautilus extension directory if it doesn't exist 
 if [ ! -d "/usr/share/nautilus-python/extensions" ]; then
     if [ ! -d "/usr/share/nautilus-python" ]; then
@@ -82,11 +85,11 @@ dnf install -y neovim
 # Make nvim config directory if it doesn't exists
 if [ ! -d "~/.config/nvim" ]; then
     echo "Creating ~/.config/nvim directory"
-    mkdir ~/.config/nvim
+    mkdir /home/$username/.config/nvim
 fi
 echo "Copying init.lua and lua directory to ~/.config/nvim"
-cp ./nvim/init.lua ~/.config/nvim/init.lua
-cp -r ./nvim/lua ~/.config/nvim/lua
+cp ./nvim/init.lua /home/$username/.config/nvim/init.lua
+cp -r ./nvim/lua /home/$username/.config/nvim/lua
 # Install packer.nvim 
 echo "Installing packer.nvim"
 git clone --depth 1 https://github.com/wbthomason/packer.nvim\
@@ -95,7 +98,7 @@ echo "Opening packer.lua. Source the file and run \":PackerSync\""
 kitty -1 -e "nvim ~/.config/nvim/lua/packer.lua"
 read -p "Once complete, close window & press enter to continue."
 echo "Copying after directory to ~/.config/nvim"
-cp -r ./nvim/after ~/.config/nvim/after
+cp -r ./nvim/after /home/$username/.config/nvim/after
 echo "Opening neovim. Run \":Mason\" and install the extensions you want."
 echo "You can also run \":Copilot setup\" to setup GitHub Copilot."
 kitty -1 -e "nvim"
@@ -113,6 +116,6 @@ grub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg
 
 # SET WALLPAPERS 
 
-gsettings set org.gnome.desktop.background picture-uri file:///home/gib/Pictures/Wallpapers/Best_of_the_best/gloomyroadcatbg.png
+gsettings set org.gnome.desktop.background picture-uri file:///home/$username/Pictures/Wallpapers/Best_of_the_best/gloomyroadcatbg.png
 
 
