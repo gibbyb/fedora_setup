@@ -7,35 +7,48 @@ if [[ $(id -u) -ne 0 ]]; then
     exit 1
 fi
 
-# Ask user for their username and save as a variable
+# Function to check if a user exists
+user_exists() {
+    if id "$1" >/dev/null 2>&1; then
+        return 0 # User exists
+    else
+        return 1 # User does not exist
+    fi
+}
+
+# Ask user for their username and validate
 read -p "Enter your username: " username
+if ! user_exists "$username"; then
+    echo "User '$username' does not exist on the system."
+    exit 1
+fi
 
 # UPDATE & INSTALL NECESSARY PACKAGES & RPMFUSION
 
-dnf update -y --refresh
-dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm\
+sudo -u "$username" dnf update -y --refresh
+sudo -u "$username" dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
     https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
-dnf install -y vim git curl wget python3 python3-pip npm gcc g++\
+sudo -u "$username" dnf install -y vim git curl wget python3 python3-pip npm gcc g++ \
     make cmake htop neofetch kernel-devel zsh gnome-tweaks
-dnf groupupdate core -y
+sudo -u "$username" dnf groupupdate core -y
 
-# SET UP DNF CONFIG 
+# SET UP DNF CONFIG
 
 echo "Making dnf faster and less bad."
-echo "fastestmirror=True" | tee -a /etc/dnf/dnf.conf
-echo "max_parallel_downloads=10" | tee -a /etc/dnf/dnf.conf
-echo "defaultyes=True" | tee -a /etc/dnf/dnf.conf
-echo "keepcache=True" | tee -a /etc/dnf/dnf.conf
+echo "fastestmirror=True" | sudo -u "$username" tee -a /etc/dnf/dnf.conf
+echo "max_parallel_downloads=10" | sudo -u "$username" tee -a /etc/dnf/dnf.conf
+echo "defaultyes=True" | sudo -u "$username" tee -a /etc/dnf/dnf.conf
+echo "keepcache=True" | sudo -u "$username" tee -a /etc/dnf/dnf.conf
 
 # DISABLE WAYLAND
 
-echo "Disabling Wayland" 
-sed -i 's/^#WaylandEnable=false/WaylandEnable=false/' /etc/gdm/custom.conf
+echo "Disabling Wayland"
+sudo -u "$username" sed -i 's/^#WaylandEnable=false/WaylandEnable=false/' /etc/gdm/custom.conf
 
 # SET UP POWERLINE WITH BASH
 
 echo "Adding Powerline to bashrc file"
-dnf install -y powerline powerline-fonts
+sudo -u "$username" dnf install -y powerline powerline-fonts
 # Define the code block to add to .bashrc
 code_block="# Powerline configuration\n\
 if [ -f /usr/bin/powerline-daemon ]; then\n\
@@ -45,77 +58,75 @@ if [ -f /usr/bin/powerline-daemon ]; then\n\
     source /usr/share/powerline/bash/powerline.sh\n\
 fi\n"
 # Check if the code block already exists in .bashrc
-if grep -qF "$code_block" /home/$username/.bashrc; then
+if sudo -u "$username" grep -qF "$code_block" /home/$username/.bashrc; then
     echo "Code block already exists in .bashrc. No changes made."
 else
     # Add the code block to .bashrc
-    echo -e "$code_block" >> /home/$username/.bashrc
+    sudo -u "$username" bash -c "echo -e '$code_block' >> /home/$username/.bashrc"
     echo "Code block added to .bashrc successfully."
 fi
 
-
-# SET UP KITTY 
+# SET UP KITTY
 
 echo "Installing and Configuring Kitty"
-dnf install -y kitty nautilus-python
-# Make kitty config directory if it doesn't exist 
+sudo -u "$username" dnf install -y kitty nautilus-python
+# Make kitty config directory if it doesn't exist
 if [ ! -d "/home/$username/.config/kitty" ]; then
     echo "Creating ~/.config/kitty directory"
-    mkdir /home/$username/.config/kitty
+    sudo -u "$username" mkdir /home/$username/.config/kitty
 fi
-cp -r ./Wallpapers /home/$username/Pictures/Wallpapers/Best_of_the_best
-cp ./kitty/kitty.conf /home/$username/.config/kitty/kitty.conf
-# Make nautilus extension directory if it doesn't exist 
+sudo -u "$username" cp -r ./Wallpapers /home/$username/Pictures/Wallpapers/Best_of_the_best
+sudo -u "$username" cp ./kitty/kitty.conf /home/$username/.config/kitty/kitty.conf
+# Make nautilus extension directory if it doesn't exist
 if [ ! -d "/usr/share/nautilus-python/extensions" ]; then
     if [ ! -d "/usr/share/nautilus-python" ]; then
         echo "Creating /usr/share/nautilus-python directory"
-        mkdir /usr/share/nautilus-python
+        sudo -u "$username" mkdir /usr/share/nautilus-python
     fi
     echo "Creating /usr/share/nautilus-python/extensions directory"
-    mkdir /usr/share/nautilus-python/extensions
+    sudo -u "$username" mkdir /usr/share/nautilus-python/extensions
 fi
 # Add nautilus extension to open kitty from right click menu
-cp ./kitty/open_any_terminal_extension.py\
-/usr/share/nautilus-python/extensions/open_any_terminal_extension.py 
+sudo -u "$username" cp ./kitty/open_any_terminal_extension.py \
+    /usr/share/nautilus-python/extensions/open_any_terminal_extension.py
 
 # SET UP NEOVIM
 
 echo "Installing and Configuring Neovim"
-dnf install -y neovim 
-# Make nvim config directory if it doesn't exists
-if [ ! -d "~/.config/nvim" ]; then
+sudo -u "$username" dnf install -y neovim
+# Make nvim config directory if it doesn't exist
+if [ ! -d "/home/$username/.config/nvim" ]; then
     echo "Creating ~/.config/nvim directory"
-    mkdir /home/$username/.config/nvim
+    sudo -u "$username" mkdir /home/$username/.config/nvim
 fi
 echo "Copying init.lua and lua directory to ~/.config/nvim"
-cp ./nvim/init.lua /home/$username/.config/nvim/init.lua
-cp -r ./nvim/lua /home/$username/.config/nvim/lua
-# Install packer.nvim 
+sudo -u "$username" cp ./nvim/init.lua /home/$username/.config/nvim/init.lua
+sudo -u "$username" cp -r ./nvim/lua /home/$username/.config/nvim/lua
+# Install packer.nvim
 echo "Installing packer.nvim"
-git clone --depth 1 https://github.com/wbthomason/packer.nvim\
- /home/$username/.local/share/nvim/site/pack/packer/start/packer.nvim
+sudo -u "$username" git clone --depth 1 https://github.com/wbthomason/packer.nvim \
+    /home/$username/.local/share/nvim/site/pack/packer/start/packer.nvim
 echo "Opening packer.lua. Source the file and run \":PackerSync\""
-kitty -1 -e "nvim ~/.config/nvim/lua/packer.lua"
-read -p "Once complete, close window & press enter to continue."
+sudo -u "$username" kitty -1 -e "nvim ~/.config/nvim/lua/packer.lua"
+read -p "Once complete, close the window & press Enter to continue."
 echo "Copying after directory to ~/.config/nvim"
-cp -r ./nvim/after /home/$username/.config/nvim/after
+sudo -u "$username" cp -r ./nvim/after /home/$username/.config/nvim/after
 echo "Opening neovim. Run \":Mason\" and install the extensions you want."
-echo "You can also run \":Copilot setup\" to setup GitHub Copilot."
-kitty -1 -e "nvim"
-read -p "Once complete, close neovim and press enter to continue."
+echo "You can also run \":Copilot setup\" to set up GitHub Copilot."
+sudo -u "$username" kitty -1 -e "nvim"
+read -p "Once complete, close neovim and press Enter to continue."
 
 # INSTALL NVIDIA DRIVERS
 
-dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda
-echo "Please wait a good 5 minutes for the drivers to install before rebooting."
+sudo -u "$username" dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda
+echo "Please wait for a few minutes for the drivers to install before rebooting."
 echo "In the meantime, make sure your grub file looks good."
 echo "Remove the duplicate lines \"rd.driver.blacklist=nouveau, modprobe.blacklist=nouveau, and nvidia-drm.modeset=1\""
-kitty -1 -e "nvim /etc/default/grub"
-read -p "Once complete, close neovim and press enter to continue."
-grub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg 
+sudo -u "$username" kitty -1 -e "nvim /etc/default/grub"
+read -p "Once complete, close neovim and press Enter to continue."
+grub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg
 
-# SET WALLPAPERS 
+# SET WALLPAPERS
 
-gsettings set org.gnome.desktop.background picture-uri file:///home/$username/Pictures/Wallpapers/Best_of_the_best/gloomyroadcatbg.png
-
+sudo -u "$username" gsettings set org.gnome.desktop.background picture-uri file:///home/$username/Pictures/Wallpapers/Best_of_the_best/gloomyroadcatbg.png
 
