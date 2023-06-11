@@ -62,27 +62,25 @@ dnf install -y kitty nautilus-python
 if [ ! -d "/home/$username/.config/kitty" ]; then
     echo "Creating ~/.config/kitty directory"
     mkdir /home/$username/.config/kitty
+    chown -R $username:$username /home/$username/.config/kitty
 fi
 # Make directory for wallpapers if it doesn't exist 
-if [ ! -d "/home/$username/Pictures/Wallpapers" ]; then
-    echo "Creating ~/Pictures/Wallpapers/Best_of_the_best directory"
-    mkdir -p /home/$username/Pictures/Wallpapers
-fi
 if [ ! -d "/home/$username/Pictures/Wallpapers/Best_of_the_best" ]; then
     echo "Creating ~/Pictures/Wallpapers/Best_of_the_best directory"
     mkdir -p /home/$username/Pictures/Wallpapers/Best_of_the_best
+    chown -R $username:$username /home/$username/Pictures 
+    chown -R $username:$username /home/$username/Pictures/Wallpapers/Best_of_the_best
 fi
 
-cp -r ./Wallpapers /home/$username/Pictures/Wallpapers/Best_of_the_best
+cp ./Wallpapers/* /home/$username/Pictures/Wallpapers/Best_of_the_best/
+
+chown -R $username:$username /home/$username/Pictures/Wallpapers/Best_of_the_best
 cp ./kitty/kitty.conf /home/$username/.config/kitty/kitty.conf
+chown -R $username:$username /home/$username/.config/kitty/kitty.conf
 # Make nautilus extension directory if it doesn't exist 
 if [ ! -d "/usr/share/nautilus-python/extensions" ]; then
-    if [ ! -d "/usr/share/nautilus-python" ]; then
-        echo "Creating /usr/share/nautilus-python directory"
-        mkdir /usr/share/nautilus-python
-    fi
     echo "Creating /usr/share/nautilus-python/extensions directory"
-    mkdir /usr/share/nautilus-python/extensions
+    mkdir -p /usr/share/nautilus-python/extensions
 fi
 # Add nautilus extension to open kitty from right click menu
 cp ./kitty/open_any_terminal_extension.py\
@@ -96,19 +94,24 @@ dnf install -y neovim
 if [ ! -d "/home/$username/.config/nvim" ]; then
     echo "Creating ~/.config/nvim directory"
     mkdir /home/$username/.config/nvim
+    chown -R $username:$username /home/$username/.config/nvim
 fi
 echo "Copying init.lua and lua directory to ~/.config/nvim"
 cp ./nvim/init.lua /home/$username/.config/nvim/init.lua
-cp -r ./nvim/lua /home/$username/.config/nvim/lua
+chown -R $username:$username /home/$username/.config/nvim/init.lua
+cp ./nvim/lua/* /home/$username/.config/nvim/lua/
+chown -R $username:$username /home/$username/.config/nvim/lua
 # Install packer.nvim 
 echo "Installing packer.nvim"
 git clone --depth 1 https://github.com/wbthomason/packer.nvim\
  /home/$username/.local/share/nvim/site/pack/packer/start/packer.nvim
+chown -R $username:$username /home/$username/.local/share/nvim/site/pack/packer/start/packer.nvim
 echo "Opening packer.lua. Source the file and run \":PackerSync\""
 kitty -1 -e "nvim /home/$username/.config/nvim/lua/packer.lua"
 read -p "Once complete, close window & press enter to continue."
 echo "Copying after directory to ~/.config/nvim"
-cp -r ./nvim/after /home/$username/.config/nvim/after
+cp ./nvim/after/* /home/$username/.config/nvim/after/
+chown -R $username:$username /home/$username/.config/nvim/after
 echo "Opening neovim. Run \":Mason\" and install the extensions you want."
 echo "You can also run \":Copilot setup\" to setup GitHub Copilot."
 kitty -1 -e "nvim"
@@ -126,6 +129,5 @@ grub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg
 
 # SET WALLPAPERS 
 
-gsettings set org.gnome.desktop.background picture-uri file:///home/$username/Pictures/Wallpapers/Best_of_the_best/gloomyroadcatbg.png
-
+su -l $username -c "gsettings set org.gnome.desktop.background picture-uri file:///home/$username/Pictures/Wallpapers/Best_of_the_best/gloomyroadcatbg.png"
 
