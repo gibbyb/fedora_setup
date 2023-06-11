@@ -69,7 +69,6 @@ dnf install -y kitty nautilus-python
 if [ ! -d "/home/$username/.config/kitty" ]; then
     echo "Creating ~/.config/kitty directory"
     mkdir /home/$username/.config/kitty
-    chown -R $username:$username /home/$username/.config/kitty
 fi
 # Make directory for wallpapers if it doesn't exist 
 if [ ! -d "/home/$username/Pictures/Wallpapers/Best_of_the_best" ]; then
@@ -79,10 +78,10 @@ if [ ! -d "/home/$username/Pictures/Wallpapers/Best_of_the_best" ]; then
 fi
 
 cp ./Wallpapers/* /home/$username/Pictures/Wallpapers/Best_of_the_best/
-chown -R $username:$username /home/$username/Pictures/Wallpapers/Best_of_the_best
+chown -R $username:$username /home/$username/Pictures/Wallpapers
 
 cp ./kitty/kitty.conf /home/$username/.config/kitty/kitty.conf
-chown -R $username:$username /home/$username/.config/kitty/kitty.conf
+chown -R $username:$username /home/$username/.config/kitty
 # Make nautilus extension directory if it doesn't exist 
 if [ ! -d "/usr/share/nautilus-python/extensions" ]; then
     echo "Creating /usr/share/nautilus-python/extensions directory"
@@ -100,21 +99,16 @@ dnf install -y neovim
 if [ ! -d "/home/$username/.config/nvim" ]; then
     echo "Creating ~/.config/nvim directory"
     mkdir /home/$username/.config/nvim
-    chown -R $username:$username /home/$username/.config/nvim
 fi
 echo "Copying init.lua and lua directory to ~/.config/nvim"
 cp ./nvim/init.lua /home/$username/.config/nvim/init.lua
-chown -R $username:$username /home/$username/.config/nvim/init.lua
 mkdir -p /home/$username/.config/nvim/lua/gib_nvim
 cp ./nvim/lua/gib_nvim/* /home/$username/.config/nvim/lua/gib_nvim/
-chown -R $username:$username /home/$username/.config/nvim/lua
+chown -R $username:$username /home/$username/.config/nvim
 # Install packer.nvim 
 echo "Installing packer.nvim"
 rm -rf /home/$username/.local/share/nvim/site/pack/packer/start/packer.nvim
-git clone --depth 1 https://github.com/wbthomason/packer.nvim\
- /home/$username/.local/share/nvim/site/pack/packer/start/packer.nvim
-chown -R $username:$username /home/$username/.local/share/nvim/site/pack/packer/start/packer.nvim
-sudo -u $username gib bash -c "./setup_nvim.sh"
+sudo -u $username bash -c "./setup_nvim.sh"
 
 # INSTALL NVIDIA DRIVERS
 
