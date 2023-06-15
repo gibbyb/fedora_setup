@@ -4,7 +4,7 @@ echo "Welcome back Gib"
 echo "Make sure to run this script from the cloned directory without sudo"
 read -p "Press enter to continue."
 echo 
-echo "We will start by updating the system."
+echo "We will start by adding keyboard shortcuts & updating the system."
 echo 
 
 ############# SETUP KEYBOARD SHORTCUTS #####################
@@ -99,6 +99,7 @@ else
     # Add the code block to .bashrc
     echo -e "$code_block" >> ~/.bashrc
     echo "Powerline config added to .bashrc successfully."
+    echo
 fi
 echo
 
