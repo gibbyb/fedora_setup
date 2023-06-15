@@ -26,11 +26,12 @@ sudo echo "keepcache=True" | sudo tee -a /etc/dnf/dnf.conf
 
 
 echo 
-echo "Installing RPM Fusion..."
+echo "Installing RPM Fusion & Flatpak..."
 echo
 sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
     https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm 
 sudo dnf groupupdate core -y
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
 #################### INSTALL PACKAGES #########################
 
@@ -39,11 +40,40 @@ echo "Installing necessary packages..."
 echo 
 sudo dnf install -y neovim xclip emacs git curl wget python3 python3-pip nodejs \
     npm gcc g++ make cmake clang clang-tools-extra clang-analyzer htop neofetch \
-    gnome-tweaks steam kitty powerline powerline-fonts nautilus-python \
-    kernel-devel 
+    gnome-tweaks steam lutris kitty powerline powerline-fonts nautilus-python \
+    kernel-devel gh qemu-kvm-core libvirt virt-manager java-latest-openjdk-devel \
+    nextcloud-client gparted timeshift gnome-shell-extension-dash-to-dock \
+    gnome-shell-extension-appindicator gnome-shell-extension-appindicator \
+    gnome-shell-extension-blur-my-shell gnome-shell-extension-caffeine \
+    gnome-shell-extension-gsconnect gnome-shell-extension-openweather
+
 echo 
 echo "Packages installed!"
 echo 
+
+#################### INSTALL FLATPAK PACKAGES #########################
+
+echo
+echo "Installing Flatpak packages..."
+echo
+flatpak install flathub -y com.microsoft.Edge sh.cider.Cider \
+    com.discordapp.Discord com.obsproject.Studio com.mojang.Minecraft \
+    org.libreoffice.LibreOffice org.yuzu_emu.yuzu \
+    com.mattjakeman.ExtensionManager org.gnome.gThumb org.gnome.Geary \
+    org.gimp.GIMP org.kde.kdenlive com.slack.Slack com.github.xournalpp.xournalpp \
+    de.haeckerfelix.Fragments com.visualstudio.code com.prusa3d.PrusaSlicer \
+    org.freecadweb.FreeCAD org.videolan.VLC com.bitwarden.desktop \
+    com.github.PintaProject.Pinta com.heroicgameslauncher.hgl
+
+
+#################### REMOVE PACKAGES WE DO NOT WANT #########################
+
+echo 
+echo "Removing packages..."
+echo
+sudo dnf remove -y gnome-boxes gnome-connections gnome-contacts simple-scan \
+    mediawriter gnome-tour eog gnome-photos libreoffice-calc libreoffice-writer \
+    libreoffice-impress totem gnome-text-editor gnome-maps
 
 #################### SET UP POWERLINE WITH BASH #########################
 
@@ -145,11 +175,11 @@ emacs_path = "#Emacs path\n\
     alias emacs=\"emacsclient -c -a 'emacs'\""
 
 # Check if the code block already exists in .bashrc
-if grep -qF "$emacs_path" /home/$username/.bashrc; then
+if grep -qF "$emacs_path" ~/.bashrc; then
     echo "Emacs path already exists in .bashrc. No changes made."
 else
     # Add the code block to .bashrc
-    echo -e "$emacs_path" >> /home/$username/.bashrc
+    echo -e "$emacs_path" >> ~/.bashrc
     echo "Emacs path added to .bashrc successfully."
 fi
 source ~/.bashrc
@@ -165,8 +195,9 @@ read -p "Press enter to continue."
 doom sync
 
 ################## INSTALL NVIDIA DRIVERS #########################
-
+echo 
 echo "Installing Nvidia Drivers"
+echo
 
 sudo dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda
 echo "Remove the duplicate lines \"rd.driver.blacklist=nouveau, \
