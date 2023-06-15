@@ -239,4 +239,5 @@ if [ "$answer" == "y" ]; then
     # Import wireguard connection
     sudo nmcli connection import type wireguard file \
         ~/Documents/Gib\ Files/Keys+Config\ Files/Wireguard/gib-laptop/Home.conf
+fi
 
