@@ -36,7 +36,7 @@ dnf groupupdate core -y
 
 dnf install -y nodejs
 dnf install -y vim git curl wget python3 python3-pip npm gcc g++\
-    make cmake htop neofetch gnome-tweaks xclip neovim
+    make cmake htop neofetch gnome-tweaks xclip neovim emacs
 
 # SET UP POWERLINE WITH BASH
 
@@ -52,11 +52,11 @@ if [ -f /usr/bin/powerline-daemon ]; then\n\
 fi\n"
 # Check if the code block already exists in .bashrc
 if grep -qF "$code_block" /home/$username/.bashrc; then
-    echo "Code block already exists in .bashrc. No changes made."
+    echo "Powerline config already exists in .bashrc. No changes made."
 else
     # Add the code block to .bashrc
     echo -e "$code_block" >> /home/$username/.bashrc
-    echo "Code block added to .bashrc successfully."
+    echo "Powerline config added to .bashrc successfully."
 fi
 
 # SET UP KITTY 
@@ -88,8 +88,22 @@ fi
 # Add nautilus extension to open kitty from right click menu
 cp ./kitty/open_any_terminal_extension.py\
  /usr/share/nautilus-python/extensions/open_any_terminal_extension.py
+# While running as root, we will go ahead and add our neovim.desktop file 
+# to make neovim use kitty as the terminal.
+cp ./nvim/neovim.desktop /usr/share/applications/neovim.desktop
 
-# INSTALL NVIDIA DRIVERS
+# SET UP EMACS
+emacs_path = "$HOME/.emacs.d/bin:$PATH"
+# Check if the code block already exists in .bashrc
+if grep -qF "$emacs_path" /home/$username/.bashrc; then
+    echo "Emacs path already exists in .bashrc. No changes made."
+else
+    # Add the code block to .bashrc
+    echo -e "$code_block" >> /home/$username/.bashrc
+    echo "Emacs path added to .bashrc successfully."
+fi
+
+# INSTALL NVIDIA DRIVERS 
 
 echo "Updating system & Installing Nvidia Drivers"
 
