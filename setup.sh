@@ -172,8 +172,8 @@ echo "Neovim setup complete."
 git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs
 ~/.config/emacs/bin/doom install
 
-emacs_path = "#Emacs path\n \
-    export PATH=\"$HOME/.config/emacs/bin:$PATH\"\n \
+emacs_path="#Emacs path\n \
+    export PATH=\"\$HOME/.config/emacs/bin:\$PATH\"\n \
     alias emacs=\"emacsclient -c -a 'emacs'\""
 
 # Check if the code block already exists in .bashrc
@@ -186,7 +186,7 @@ else
 fi
 source ~/.bashrc
 
-sudo cp ./emacs/emacs_daeman.desktop /usr/share/applications/emacs_daemon.desktop
+sudo cp ./emacs/emacs_daemon.desktop /usr/share/applications/emacs_daemon.desktop
 sudo cp ./emacs/emacs_client.desktop /usr/share/applications/emacs_client.desktop
 
 echo "About to run the doom sync command. If the command isn't recognized,"
@@ -223,6 +223,7 @@ read -p "Would you like to set up your Wireguard VPN? (y/n) " answer
 
 if [ "$answer" == "y" ]; then
     read -p "Make sure you can SSH to your server. Press enter to continue."
+    mkdir -p ~/Documents/Gib\ Files/Keys+Config\ Files/Wireguard
     # Copy files from remote server
     scp -r gib@gibbyb.com:~/Documents/Wireguard \
         ~/Documents/Gib\ Files/Keys+Config\ Files
