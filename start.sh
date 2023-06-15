@@ -95,7 +95,8 @@ cp ./nvim/neovim.desktop /usr/share/applications/neovim.desktop
 # SET UP EMACS
 
 emacs_path = "#Emacs path\n\
-    export PATH=\"$HOME/.config/emacs/bin:$PATH\""
+    export PATH=\"$HOME/.config/emacs/bin:$PATH\"\n\
+    alias emacs="emacsclient -c -a 'emacs'""
 # Check if the code block already exists in .bashrc
 if grep -qF "$emacs_path" /home/$username/.bashrc; then
     echo "Emacs path already exists in .bashrc. No changes made."
