@@ -93,15 +93,19 @@ cp ./kitty/open_any_terminal_extension.py\
 cp ./nvim/neovim.desktop /usr/share/applications/neovim.desktop
 
 # SET UP EMACS
-emacs_path = "$HOME/.emacs.d/bin:$PATH"
+
+emacs_path = "#Emacs path\n\
+    export PATH=\"$HOME/.config/emacs/bin:$PATH\""
 # Check if the code block already exists in .bashrc
 if grep -qF "$emacs_path" /home/$username/.bashrc; then
     echo "Emacs path already exists in .bashrc. No changes made."
 else
     # Add the code block to .bashrc
-    echo -e "$code_block" >> /home/$username/.bashrc
+    echo -e "$emacs_path" >> /home/$username/.bashrc
     echo "Emacs path added to .bashrc successfully."
 fi
+cp ./emacs/emacs_daeman.desktop /usr/share/applications/emacs_daemon.desktop
+cp ./emacs/emacs_client.desktop /usr/share/applications/emacs_client.desktop
 
 # INSTALL NVIDIA DRIVERS 
 

@@ -25,3 +25,8 @@ echo "You can also run \":Copilot setup\" to setup GitHub Copilot."
 kitty -1 -e "nvim"
 echo "Neovim setup complete."
 
+# SET UP EMACS
+git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs
+~/.config/emacs/bin/doom install
+~/.config/emacs/bin/doom sync
+
