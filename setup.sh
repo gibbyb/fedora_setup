@@ -189,9 +189,6 @@ source ~/.bashrc
 sudo cp ./emacs/emacs_daemon.desktop /usr/share/applications/emacs_daemon.desktop
 sudo cp ./emacs/emacs_client.desktop /usr/share/applications/emacs_client.desktop
 
-echo "About to run the doom sync command. If the command isn't recognized,"
-echo "then there is an issue with how the bashrc file was edited."
-echo "If this is the case, fix it and then remove this message from the script."
 read -p "Press enter to continue."
 
 doom sync
@@ -226,7 +223,7 @@ if [ "$answer" == "y" ]; then
     mkdir -p ~/Documents/Gib\ Files/Keys+Config\ Files/Wireguard
     # Copy files from remote server
     scp -r gib@gibbyb.com:~/Documents/Wireguard \
-        ~/Documents/Gib\ Files/Keys+Config\ Files
+        ~/Documents/Gib\ Files/Keys+Config\ Files/
     # Rename directories and files
     mv ~/Documents/Gib\ Files/Keys+Config\ Files/Wireguard/peer1 \
         ~/Documents/Gib\ Files/Keys+Config\ Files/Wireguard/gib-laptop
