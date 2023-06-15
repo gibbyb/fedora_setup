@@ -1,0 +1,25 @@
+[/]
+calculator=['<Super>c']
+control-center=['<Super>i']
+custom-keybindings=['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/']
+email=['<Super>e']
+help=@as []
+home=['<Super>h']
+magnifier=@as []
+screenreader=@as []
+www=['<Super>w']
+
+[custom-keybindings/custom0]
+binding='<Super>t'
+command='kitty'
+name='Kitty'
+
+[custom-keybindings/custom1]
+binding='<Super>Return'
+command='gnome-terminal'
+name='Terminal'
+
+[custom-keybindings/custom2]
+binding='<Shift><Control>Escape'
+command='gnome-system-monitor'
+name='System Monitor'

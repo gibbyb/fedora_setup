@@ -7,6 +7,9 @@ echo
 echo "We will start by updating the system."
 echo 
 
+############# SETUP KEYBOARD SHORTCUTS #####################
+dconf load /org/gnome/settings-daemon/plugins/media-keys/ < shortcuts.txt
+
 ############## UPDATE SYSTEM UPON FRESH FEDORA INSTALL #####################
 
 sudo dnf update -y --refresh
