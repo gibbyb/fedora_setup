@@ -34,6 +34,7 @@ echo
 sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
     https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm 
 sudo dnf groupupdate core -y
+sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
 #################### INSTALL PACKAGES #########################
 
@@ -44,10 +45,7 @@ sudo dnf install -y neovim xclip emacs git curl wget python3 python3-pip nodejs 
     npm gcc g++ make cmake clang clang-tools-extra clang-analyzer htop neofetch \
     gnome-tweaks steam lutris kitty powerline powerline-fonts nautilus-python \
     kernel-devel gh qemu-kvm-core libvirt virt-manager java-latest-openjdk-devel \
-    nextcloud-client gparted timeshift gnome-shell-extension-dash-to-dock \
-    gnome-shell-extension-appindicator gnome-shell-extension-appindicator \
-    gnome-shell-extension-blur-my-shell gnome-shell-extension-caffeine \
-    gnome-shell-extension-gsconnect gnome-shell-extension-openweather
+    nextcloud-client gparted timeshift
 
 echo 
 echo "Packages installed!"
@@ -166,6 +164,7 @@ echo "Opening neovim. Run \":Mason\" and install the extensions you want."
 echo "You can also run \":Copilot setup\" to setup GitHub Copilot."
 echo "Once complete, close the window."
 kitty -1 -e "nvim"
+git config --global core.editor "nvim"
 echo "Neovim setup complete."
 
 ######################### SET UP EMACS ################################
@@ -173,8 +172,8 @@ echo "Neovim setup complete."
 git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs
 ~/.config/emacs/bin/doom install
 
-emacs_path = "#Emacs path\n\
-    export PATH=\"$HOME/.config/emacs/bin:$PATH\"\n\
+emacs_path = "#Emacs path\n \
+    export PATH=\"$HOME/.config/emacs/bin:$PATH\"\n \
     alias emacs=\"emacsclient -c -a 'emacs'\""
 
 # Check if the code block already exists in .bashrc
@@ -239,4 +238,6 @@ if [ "$answer" == "y" ]; then
     sudo nmcli connection import type wireguard file \
         ~/Documents/Gib\ Files/Keys+Config\ Files/Wireguard/gib-laptop/Home.conf
 fi
-
+echo
+echo "All done! Now delete this shitty terminal."
+echo
