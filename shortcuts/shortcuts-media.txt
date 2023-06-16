@@ -14,11 +14,6 @@ binding='<Super>t'
 command='kitty'
 name='Kitty'
 
-[custom-keybindings/custom1]
-binding='<Super>Return'
-command='gnome-terminal'
-name='Terminal'
-
 [custom-keybindings/custom2]
 binding='<Shift><Control>Escape'
 command='gnome-system-monitor'

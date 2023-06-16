@@ -4,14 +4,40 @@ echo "Welcome back Gib"
 echo "Make sure to run this script from the cloned directory without sudo"
 read -p "Press enter to continue."
 echo 
-echo "We will start by adding keyboard shortcuts & updating the system."
+echo "We will start by adding keyboard shortcuts & personalizing desktop."
 echo 
 
 ############# SETUP KEYBOARD SHORTCUTS #####################
-dconf load /org/gnome/settings-daemon/plugins/media-keys/ < shortcuts.txt
+
+# Load window management shortcuts
+dconf load /org/gnome/desktop/wm/keybindings/ < ./shortcuts/shortcuts-wm.txt
+
+# Load media keys shortcuts
+dconf load /org/gnome/settings-daemon/plugins/media-keys/ < ./shortcuts/shortcuts-media.txt
+
+# Load power-related shortcuts
+dconf load /org/gnome/settings-daemon/plugins/power/ < ./shortcuts/shortcuts-power.txt
+
+echo "Keyboard shortcuts loaded successfully."
+
+########################## SETUP DESKTOP ###################################
+# Add maximize and minimize buttons to windows
+gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
+
+# Set gtk theme to Adwaita-dark 
+gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
+
+# Add weekday to clock in top bar 
+gsettings set org.gnome.desktop.interface clock-show-weekday true
+
+# Center new windows on screen
+gsettings set org.gnome.mutter center-new-windows true
 
 ############## UPDATE SYSTEM UPON FRESH FEDORA INSTALL #####################
 
+echo
+echo "Updating system..." 
+echo
 sudo dnf update -y --refresh
 echo 
 echo "Updates complete. Before we install any more packages, let's fix DNF."
@@ -45,7 +71,7 @@ sudo dnf install -y neovim xclip emacs git curl wget python3 python3-pip nodejs 
     npm gcc g++ make cmake clang clang-tools-extra clang-analyzer htop neofetch \
     gnome-tweaks steam lutris kitty powerline powerline-fonts nautilus-python \
     kernel-devel gh qemu-kvm-core libvirt virt-manager java-latest-openjdk-devel \
-    nextcloud-client gparted timeshift
+    nextcloud-client gparted timeshift jetbrains-mono-fonts-all
 
 echo 
 echo "Packages installed!"
@@ -192,6 +218,17 @@ sudo cp ./emacs/emacs_client.desktop /usr/share/applications/emacs_client.deskto
 read -p "Press enter to continue."
 
 doom sync
+
+############### COPY NANORC FILE ############################
+
+sudo cp ./nano/nanorc /etc/nanorc
+
+######################### SET UP GIT ################################
+git config --global user.name "gibbyb"
+git config --global user.email "gib@gibbyb.com"
+git config --global core.editor "nvim"
+git config --global init.defaultBranch "main"
+gh auth login
 
 ################## INSTALL NVIDIA DRIVERS #########################
 echo 
