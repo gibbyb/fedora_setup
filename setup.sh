@@ -33,6 +33,19 @@ gsettings set org.gnome.desktop.interface clock-show-weekday true
 # Center new windows on screen
 gsettings set org.gnome.mutter center-new-windows true
 
+# Copy extensions to extensions directory
+mkdir -p ~/.local/share/gnome-shell/extensions
+cp -r ./extensions/* ~/.local/share/gnome-shell/extensions
+
+# Open gnome tweaks to allow user to finish personalizing desktop
+gnome-tweaks
+echo 
+echo "Finish changing any settings we couldn't automate." 
+echo "Your keyboard shortcuts have been set. Press Ctrl+I to open settings."
+echo "You can change any settings in there that could not be automated as well."
+echo
+read -p "Press enter to continue."
+
 ############## UPDATE SYSTEM UPON FRESH FEDORA INSTALL #####################
 
 echo
