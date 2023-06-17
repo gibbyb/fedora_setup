@@ -84,7 +84,8 @@ sudo dnf install -y neovim xclip emacs git curl wget python3 python3-pip nodejs 
     npm gcc g++ make cmake clang clang-tools-extra clang-analyzer htop neofetch \
     gnome-tweaks steam lutris kitty powerline powerline-fonts nautilus-python \
     kernel-devel gh qemu-kvm-core libvirt virt-manager java-latest-openjdk-devel \
-    nextcloud-client gparted timeshift jetbrains-mono-fonts-all
+    nextcloud-client gparted timeshift jetbrains-mono-fonts-all kmodtool akmods \
+    mokutil openssl 
 
 echo 
 echo "Packages installed!"
@@ -258,11 +259,19 @@ echo
 echo "############## WARNING ################"
 echo "Wait 5 minutes before rebooting!"
 echo "Nividia drivers MUST finish building!"
-echo "############## WARNING ################"
+echo "############## WARNING ################" 
+read -p "Press enter once the drivers have finished building."
 echo
 echo "Enabling Nvidia system services"
 sudo systemctl enable nvidia-hibernate.service nvidia-suspend.service \
     nvidia-resume.service
+echo
+echo "Enrolling Key to MOK"
+echo
+sudo mokutil --import /etc/pki/akmods/certs/public_key.der
+echo
+echo "Enroll the key once you reboot."
+echo 
 
 ################## SET UP WIREGUARD #########################
 
@@ -286,6 +295,7 @@ if [ "$answer" == "y" ]; then
     sudo nmcli connection import type wireguard file \
         ~/Documents/Gib\ Files/Keys+Config\ Files/Wireguard/gib-laptop/Home.conf
 fi
+
 echo
-echo "All done! Now delete this shitty terminal."
+echo "All done! Now delete this ugly terminal."
 echo
