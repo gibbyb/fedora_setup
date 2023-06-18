@@ -85,7 +85,7 @@ sudo dnf install -y neovim xclip emacs git curl wget python3 python3-pip nodejs 
     gnome-tweaks steam lutris kitty powerline powerline-fonts nautilus-python \
     kernel-devel gh qemu-kvm-core libvirt virt-manager java-latest-openjdk-devel \
     nextcloud-client gparted timeshift jetbrains-mono-fonts-all kmodtool akmods \
-    mokutil openssl 
+    mokutil openssl maven
 
 echo 
 echo "Packages installed!"
@@ -103,7 +103,8 @@ flatpak install flathub -y com.microsoft.Edge sh.cider.Cider \
     org.gimp.GIMP org.kde.kdenlive com.slack.Slack com.github.xournalpp.xournalpp \
     de.haeckerfelix.Fragments com.visualstudio.code com.prusa3d.PrusaSlicer \
     org.freecadweb.FreeCAD org.videolan.VLC com.bitwarden.desktop \
-    com.github.PintaProject.Pinta com.heroicgameslauncher.hgl
+    com.github.PintaProject.Pinta com.heroicgameslauncher.hgl \
+    net.rpcs3.RPCS3
 
 
 #################### REMOVE PACKAGES WE DO NOT WANT #########################
@@ -201,6 +202,8 @@ read -p "Press enter to continue."
 echo "Copying after directory to ~/.config/nvim"
 cp ./nvim/after/plugin/* ~/.config/nvim/after/plugin/ 
 echo "Opening neovim. Run \":Mason\" and install the extensions you want."
+echo "You need to run this to get the java lsp:"
+echo ":MasonInstall java-language-server@v0.2.32"
 echo "You can also run \":Copilot setup\" to setup GitHub Copilot."
 echo "Once complete, close the window."
 kitty -1 -e "nvim"
