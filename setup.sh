@@ -33,10 +33,11 @@ gsettings set org.gnome.desktop.interface clock-show-weekday true
 # Center new windows on screen
 gsettings set org.gnome.mutter center-new-windows true
 
+sudo dnf install -y gnome-tweaks
+
 # Copy extensions to extensions directory
 mkdir -p ~/.local/share/gnome-shell/extensions
 cp -r ./extensions/* ~/.local/share/gnome-shell/extensions
-
 # Open gnome tweaks to allow user to finish personalizing desktop
 echo 
 echo "Finish changing any settings we couldn't automate." 
