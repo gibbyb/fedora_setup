@@ -38,13 +38,13 @@ mkdir -p ~/.local/share/gnome-shell/extensions
 cp -r ./extensions/* ~/.local/share/gnome-shell/extensions
 
 # Open gnome tweaks to allow user to finish personalizing desktop
-gnome-tweaks
 echo 
 echo "Finish changing any settings we couldn't automate." 
 echo "Your keyboard shortcuts have been set. Press Ctrl+I to open settings."
 echo "You can change any settings in there that could not be automated as well."
 echo
 read -p "Press enter to continue."
+gnome-tweaks
 
 ############## UPDATE SYSTEM UPON FRESH FEDORA INSTALL #####################
 
@@ -85,7 +85,7 @@ sudo dnf install -y neovim xclip emacs git curl wget python3 python3-pip nodejs 
     gnome-tweaks steam lutris kitty powerline powerline-fonts nautilus-python \
     kernel-devel gh qemu-kvm-core libvirt virt-manager java-latest-openjdk-devel \
     nextcloud-client gparted timeshift jetbrains-mono-fonts-all kmodtool akmods \
-    mokutil openssl maven
+    mokutil openssl maven cargo 
 
 echo 
 echo "Packages installed!"
@@ -203,6 +203,7 @@ echo "Copying after directory to ~/.config/nvim"
 cp ./nvim/after/plugin/* ~/.config/nvim/after/plugin/ 
 echo "Opening neovim. Run \":Mason\" and install the extensions you want."
 echo "You need to run this to get the java lsp:"
+echo "In my experience, you need to install the Oracle JDK for this to work."
 echo ":MasonInstall java-language-server@v0.2.32"
 echo "You can also run \":Copilot setup\" to setup GitHub Copilot."
 echo "Once complete, close the window."
