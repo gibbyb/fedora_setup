@@ -44,8 +44,8 @@ echo "Finish changing any settings we couldn't automate."
 echo "Your keyboard shortcuts have been set. Press Ctrl+I to open settings."
 echo "You can change any settings in there that could not be automated as well."
 echo
-read -p "Press enter to continue."
 gnome-tweaks
+read -p "Press enter to continue."
 
 ############## UPDATE SYSTEM UPON FRESH FEDORA INSTALL #####################
 
@@ -69,13 +69,15 @@ sudo echo "keepcache=True" | sudo tee -a /etc/dnf/dnf.conf
 
 
 echo 
-echo "Installing RPM Fusion & Flatpak..."
+echo "Installing RPM Fusion, Microsoft repo & Flatpak..."
 echo
 sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
     https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm 
 sudo dnf groupupdate core -y
 sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-
+sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+sudo dnf config-manager --add-repo https://packages.microsoft.com/yumrepos/edge
+printf "[vscode]\nname=packages.microsoft.com\nbaseurl=https://packages.microsoft.com/yumrepos/vscode/\nenabled=1\ngpgcheck=1\nrepo_gpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc\nmetadata_expire=1h" | sudo tee -a /etc/yum.repos.d/vscode.repo
 #################### INSTALL PACKAGES #########################
 
 echo
@@ -83,10 +85,10 @@ echo "Installing necessary packages..."
 echo 
 sudo dnf install -y neovim xclip emacs git curl wget python3 python3-pip nodejs \
     npm gcc g++ make cmake clang clang-tools-extra clang-analyzer htop neofetch \
-    gnome-tweaks steam lutris kitty powerline powerline-fonts nautilus-python \
+    steam lutris kitty powerline powerline-fonts nautilus-python php-fpm composer \
     kernel-devel gh qemu-kvm-core libvirt virt-manager java-latest-openjdk-devel \
     nextcloud-client gparted timeshift jetbrains-mono-fonts-all kmodtool akmods \
-    mokutil openssl maven cargo 
+    mokutil openssl maven cargo dotnet microsoft-edge-stable code
 
 echo 
 echo "Packages installed!"
@@ -97,16 +99,18 @@ echo
 echo
 echo "Installing Flatpak packages..."
 echo
-flatpak install flathub -y com.microsoft.Edge sh.cider.Cider \
+flatpak install flathub -y sh.cider.Cider net.rpcs3.RPCS3 \
     com.discordapp.Discord com.obsproject.Studio com.mojang.Minecraft \
     org.libreoffice.LibreOffice org.yuzu_emu.yuzu \
     com.mattjakeman.ExtensionManager org.gnome.gThumb org.gnome.Geary \
     org.gimp.GIMP org.kde.kdenlive com.slack.Slack com.github.xournalpp.xournalpp \
-    de.haeckerfelix.Fragments com.visualstudio.code com.prusa3d.PrusaSlicer \
+    de.haeckerfelix.Fragments com.prusa3d.PrusaSlicer \
     org.freecadweb.FreeCAD org.videolan.VLC com.bitwarden.desktop \
     com.github.PintaProject.Pinta com.heroicgameslauncher.hgl \
-    net.rpcs3.RPCS3
-
+    
+# com.microsoft.Edge com.visualstudio.code giving Microsoft Edge RPM a chance even though it is 
+# literally not as good as the flatpak, but it works with Webstorm, which is 
+# a whole other problem on why I am even using Webstorm in the first place
 
 #################### REMOVE PACKAGES WE DO NOT WANT #########################
 
@@ -233,7 +237,8 @@ source ~/.bashrc
 
 sudo cp ./emacs/emacs_daemon.desktop /usr/share/applications/emacs_daemon.desktop
 sudo cp ./emacs/emacs_client.desktop /usr/share/applications/emacs_client.desktop
-
+echo
+echo "Running doom sync."
 read -p "Press enter to continue."
 
 doom sync
