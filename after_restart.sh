@@ -15,7 +15,7 @@ echo
 echo
 echo "Installing Flatpak packages..."
 echo
-flatpak install flathub -y sh.cider.Cider net.rpcs3.RPCS3 \
+flatpak install -y sh.cider.Cider net.rpcs3.RPCS3 \
     com.discordapp.Discord com.obsproject.Studio com.mojang.Minecraft \
     org.libreoffice.LibreOffice org.yuzu_emu.yuzu net.davidotek.pupgui2 \
     com.mattjakeman.ExtensionManager org.gnome.gThumb org.gnome.Geary \
