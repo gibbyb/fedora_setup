@@ -249,7 +249,7 @@ echo
 echo "Enabling Nvidia system services"
 sudo systemctl enable nvidia-hibernate.service nvidia-suspend.service \
     nvidia-resume.service
-
+sudo sed -i 's/#WaylandEnable=false/WaylandEnable=false/' /etc/gdm/custom.conf
 ################## SET UP WIREGUARD #########################
 
 read -p "Would you like to set up your Wireguard VPN? (y/n) " answer
