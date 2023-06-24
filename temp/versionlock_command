@@ -1,0 +1,3 @@
+sudo dnf versionlock add ostree-libs
+sudo dnf versionlock delete ostree-libs
+
