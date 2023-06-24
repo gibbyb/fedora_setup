@@ -47,6 +47,24 @@ echo
 gnome-tweaks
 read -p "Press enter to continue."
 
+#################### INSTALL FLATPAK PACKAGES #########################
+
+echo
+echo "Installing Flatpak packages..."
+echo
+flatpak install flathub -y sh.cider.Cider net.rpcs3.RPCS3 \
+    com.discordapp.Discord com.obsproject.Studio com.mojang.Minecraft \
+    org.libreoffice.LibreOffice org.yuzu_emu.yuzu net.davidotek.pupgui2 \
+    com.mattjakeman.ExtensionManager org.gnome.gThumb org.gnome.Geary \
+    org.gimp.GIMP org.kde.kdenlive com.slack.Slack com.github.xournalpp.xournalpp \
+    de.haeckerfelix.Fragments com.prusa3d.PrusaSlicer \
+    org.freecadweb.FreeCAD org.videolan.VLC com.bitwarden.desktop \
+    com.github.PintaProject.Pinta com.heroicgameslauncher.hgl
+
+# com.microsoft.Edge com.visualstudio.code giving Microsoft Edge RPM a chance even though it is 
+# literally not as good as the flatpak, but it works with Webstorm, which is 
+# a whole other problem on why I am even using Webstorm in the first place
+
 ############## UPDATE SYSTEM UPON FRESH FEDORA INSTALL #####################
 
 echo
@@ -87,7 +105,7 @@ sudo dnf install -y neovim xclip emacs git curl wget python3 python3-pip nodejs 
     steam lutris kitty powerline powerline-fonts nautilus-python php-fpm composer \
     kernel-devel gh qemu-kvm-core libvirt virt-manager java-latest-openjdk-devel \
     nextcloud-client gparted timeshift jetbrains-mono-fonts-all kmodtool akmods \
-    mokutil openssl maven cargo dotnet microsoft-edge-stable code wine
+    mokutil openssl maven cargo dotnet microsoft-edge-stable code wine go gem luarocks
 
 echo 
 echo "Packages installed!"
@@ -227,24 +245,6 @@ doom sync
 
 sudo cp ./nano/nanorc /etc/nanorc
 
-#################### INSTALL FLATPAK PACKAGES #########################
-
-echo
-echo "Installing Flatpak packages..."
-echo
-flatpak install flathub -y sh.cider.Cider net.rpcs3.RPCS3 \
-    com.discordapp.Discord com.obsproject.Studio com.mojang.Minecraft \
-    org.libreoffice.LibreOffice org.yuzu_emu.yuzu net.davidotek.pupgui2 \
-    com.mattjakeman.ExtensionManager org.gnome.gThumb org.gnome.Geary \
-    org.gimp.GIMP org.kde.kdenlive com.slack.Slack com.github.xournalpp.xournalpp \
-    de.haeckerfelix.Fragments com.prusa3d.PrusaSlicer \
-    org.freecadweb.FreeCAD org.videolan.VLC com.bitwarden.desktop \
-    com.github.PintaProject.Pinta com.heroicgameslauncher.hgl
-
-# com.microsoft.Edge com.visualstudio.code giving Microsoft Edge RPM a chance even though it is 
-# literally not as good as the flatpak, but it works with Webstorm, which is 
-# a whole other problem on why I am even using Webstorm in the first place
-
 ######################### SET UP GIT ################################
 git config --global user.name "gibbyb"
 git config --global user.email "gib@gibbyb.com"
@@ -261,7 +261,7 @@ sudo dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda
 echo "Remove the duplicate lines \"rd.driver.blacklist=nouveau, \
     modprobe.blacklist=nouveau, and nvidia-drm.modeset=1\""
 kitty -1 -e bash -c "sudo nvim /etc/default/grub"
-kitty -1 -e bash -c "sudo nvim /etc/gdm/custom.conf"
+# kitty -1 -e bash -c "sudo nvim /etc/gdm/custom.conf"
 read -p "Once complete, close neovim and press enter to continue."
 sudo grub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg 
 echo
