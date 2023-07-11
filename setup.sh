@@ -4,6 +4,9 @@ echo "Welcome back Gib"
 echo "Make sure to run this script from the cloned directory without sudo"
 read -p "Press enter to continue."
 echo 
+echo "Change the root password."
+sudo passwd
+echo
 echo "We will start by adding keyboard shortcuts & personalizing desktop."
 echo 
 
@@ -105,7 +108,8 @@ sudo dnf install -y neovim xclip emacs git curl wget python3 python3-pip nodejs 
     steam lutris kitty powerline powerline-fonts nautilus-python php-fpm composer \
     kernel-devel gh qemu-kvm-core libvirt virt-manager java-latest-openjdk-devel \
     nextcloud-client gparted timeshift jetbrains-mono-fonts-all kmodtool akmods \
-    mokutil openssl maven cargo dotnet microsoft-edge-stable code wine go gem luarocks
+    mokutil openssl maven cargo dotnet microsoft-edge-stable code wine go gem \
+    luarocks texlive
 
 echo 
 echo "Packages installed!"
