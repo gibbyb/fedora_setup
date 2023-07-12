@@ -8,3 +8,7 @@ echo
 echo "Enroll the key once you reboot."
 echo
 
+sudo systemctl enable --now vncserver-x11-serviced.service
+sudo systemctl enable --now libvirtd.service
+
+
