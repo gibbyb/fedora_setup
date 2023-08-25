@@ -1,8 +1,0 @@
-[Desktop Entry]
-Name=Emacs Daemon
-Exec=/usr/bin/emacs --daemon
-Comment=Start Emacs daemon
-Icon=emacs
-Type=Application
-Terminal=false
-

@@ -1,95 +1,62 @@
 #!/bin/bash
 
-echo "Welcome back Gib"
-echo "Make sure to run this script from the cloned directory without sudo"
-read -p "Press enter to continue."
-echo 
-echo "Change the root password."
+echo "FEDORA SETUP SCRIPT"
+echo
+echo "Run this script from the cloned directory without sudo."
+read - p "Press enter to continue"
+echo
+echo "Change the root password"
 sudo passwd
 echo
-echo "We will start by adding keyboard shortcuts & personalizing desktop."
-echo 
-
-############# SETUP KEYBOARD SHORTCUTS #####################
-
-# Load window management shortcuts
+echo "Importing most of the key bindings"
+# WM keybindings
 dconf load /org/gnome/desktop/wm/keybindings/ < ./shortcuts/shortcuts-wm.txt
-
-# Load media keys shortcuts
+# Media keybindings
 dconf load /org/gnome/settings-daemon/plugins/media-keys/ < ./shortcuts/shortcuts-media.txt
+echo
 
-# Load power-related shortcuts
-dconf load /org/gnome/settings-daemon/plugins/power/ < ./shortcuts/shortcuts-power.txt
-
-echo "Keyboard shortcuts loaded successfully."
-
-########################## SETUP DESKTOP ###################################
+echo "Changing some settings"
 # Add maximize and minimize buttons to windows
 gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
-
 # Set gtk theme to Adwaita-dark 
 gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
-
 # Add weekday to clock in top bar 
 gsettings set org.gnome.desktop.interface clock-show-weekday true
-
 # Center new windows on screen
 gsettings set org.gnome.mutter center-new-windows true
+echo
 
+echo "Installing gnome-tweaks & gnome extensions manager"
 sudo dnf install -y gnome-tweaks
-
-# Copy extensions to extensions directory
+flatpak install flathub -y com.mattjakeman.ExtensionManager
+echo
+echo "Copying extensions..." 
+echo "You will be able to enable them in Extension Manager after reboot."
 mkdir -p ~/.local/share/gnome-shell/extensions
-cp -r ./extensions/* ~/.local/share/gnome-shell/extensions
-# Open gnome tweaks to allow user to finish personalizing desktop
-echo 
-echo "Finish changing any settings we couldn't automate." 
-echo "Your keyboard shortcuts have been set. Press Ctrl+I to open settings."
-echo "You can change any settings in there that could not be automated as well."
+cp -r ./gnome_extensions/* ~/.local/share/gnome-shell/extensions
 echo
+
+echo "Finish changing any other settings in Gnome Tweaks & Gnome Settings."
+echo "You will need to add/remove some more shortcuts manually."
 gnome-tweaks
-read -p "Press enter to continue."
-
-#################### INSTALL FLATPAK PACKAGES #########################
-
-echo
-echo "Installing Flatpak packages..."
-echo
-flatpak install flathub -y sh.cider.Cider net.rpcs3.RPCS3 \
-    com.discordapp.Discord com.obsproject.Studio com.mojang.Minecraft \
-    org.libreoffice.LibreOffice org.yuzu_emu.yuzu net.davidotek.pupgui2 \
-    com.mattjakeman.ExtensionManager org.gnome.gThumb org.gnome.Geary \
-    org.gimp.GIMP org.kde.kdenlive com.slack.Slack com.github.xournalpp.xournalpp \
-    de.haeckerfelix.Fragments com.prusa3d.PrusaSlicer \
-    org.freecadweb.FreeCAD org.videolan.VLC com.bitwarden.desktop \
-    com.github.PintaProject.Pinta com.heroicgameslauncher.hgl
-
-# com.microsoft.Edge com.visualstudio.code giving Microsoft Edge RPM a chance even though it is 
-# literally not as good as the flatpak, but it works with Webstorm, which is 
-# a whole other problem on why I am even using Webstorm in the first place
-
-############## UPDATE SYSTEM UPON FRESH FEDORA INSTALL #####################
-
-echo
-echo "Updating system..." 
-echo
-sudo dnf update -y --refresh
-echo 
-echo "Updates complete. Before we install any more packages, let's fix DNF."
+gnome-control-center
 echo
 
-#################### FIX DNF #########################
-
-
+echo "Making DNF better..."
 sudo echo "fastestmirror=True" | sudo tee -a /etc/dnf/dnf.conf
 sudo echo "max_parallel_downloads=10" | sudo tee -a /etc/dnf/dnf.conf
 sudo echo "defaultyes=True" | sudo tee -a /etc/dnf/dnf.conf
 sudo echo "keepcache=True" | sudo tee -a /etc/dnf/dnf.conf
+echo
 
-#################### INSTALL RPM FUSION #########################
+echo "We will update the system for the first time now."
+sudo dnf update -y --refresh
 
+echo "Installing flatpaks in another terminal window."
+chmod +x ./scripts/install_flatpaks.sh
+./scripts/install_flatpaks.sh &
+echo
 
-echo 
 echo "Installing RPM Fusion, Microsoft repo & Flatpak..."
 echo
 sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
@@ -98,62 +65,37 @@ sudo dnf groupupdate core -y
 sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
 sudo dnf config-manager --add-repo https://packages.microsoft.com/yumrepos/edge
 printf "[vscode]\nname=packages.microsoft.com\nbaseurl=https://packages.microsoft.com/yumrepos/vscode/\nenabled=1\ngpgcheck=1\nrepo_gpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc\nmetadata_expire=1h" | sudo tee -a /etc/yum.repos.d/vscode.repo
-#################### INSTALL PACKAGES #########################
-
+sudo dnf copr enable atim/heroic-games-launcher -y
 echo
+
 echo "Installing necessary packages..."
 echo 
+
+sudo dnf groupinstall -y "C Development Tools and Libraries"
+sudo dnf groupinstall -y "Development Tools"
+
 sudo dnf install -y neovim xclip emacs git curl wget python3 python3-pip nodejs \
     npm gcc g++ make cmake clang clang-tools-extra clang-analyzer htop neofetch \
     steam lutris kitty powerline powerline-fonts nautilus-python php-fpm composer \
     kernel-devel gh qemu-kvm-core libvirt virt-manager java-latest-openjdk-devel \
     nextcloud-client gparted timeshift jetbrains-mono-fonts-all kmodtool akmods \
     mokutil openssl maven cargo dotnet microsoft-edge-stable code wine go gem \
-    luarocks texlive
-
-echo 
-echo "Packages installed!"
-echo 
-#################### REMOVE PACKAGES WE DO NOT WANT #########################
-
-echo 
-echo "Removing packages..."
+    luarocks texlive python3-tkinter dnf-plugins-core python3-dnf-plugin-versionlock \
+    xkill mangohud airtv dia firewall-config godot scratch texstudio winetricks \
+    wireshark seahorse gnome-connections dia dotnet-sdk-7.0 wine-mono \
+    heroic-games-launcher-bin
 echo
-sudo dnf remove -y gnome-boxes gnome-connections gnome-contacts simple-scan \
-    mediawriter gnome-tour eog gnome-photos libreoffice-calc libreoffice-writer \
-    libreoffice-impress totem gnome-text-editor gnome-maps
-
-#################### SET UP POWERLINE WITH BASH #########################
-
-echo 
-echo "Adding Powerline to bashrc file..."
+echo "All DNF packages installed."
 echo
 
-# Define the code block to add to .bashrc
-code_block="# Powerline configuration\n\
-if [ -f /usr/bin/powerline-daemon ]; then\n\
-    powerline-daemon -q\n\
-    POWERLINE_BASH_CONTINUATION=1\n\
-    POWERLINE_BASH_SELECT=1\n\
-    source /usr/share/powerline/bash/powerline.sh\n\
-fi\n"
-# Check if the code block already exists in .bashrc
-if grep -qF "$code_block" ~/.bashrc; then
-    echo "Powerline config already exists in .bashrc. No changes made."
-else
-    # Add the code block to .bashrc
-    echo -e "$code_block" >> ~/.bashrc
-    echo "Powerline config added to .bashrc successfully."
-    echo
-fi
+
+
+echo "Replacing .bashrc file."
+cp ./config/.bashrc ~/.bashrc
+source ~/.bashrc
 echo
 
-######################### SET UP KITTY ################################
-
-echo
-echo "Now we will set up Kitty"
-echo 
-
+echo "Setting up Kitty Terminal..."
 # Make kitty config directory if it doesn't exist 
 if [ ! -d "~/.config/kitty" ]; then
     echo "Creating ~/.config/kitty directory"
@@ -163,7 +105,7 @@ fi
 # Copy needed wallpapers and kitty config file
 mkdir -p ~/Pictures/Wallpapers/Best_of_the_best
 cp ./Wallpapers/* ~/Pictures/Wallpapers/Best_of_the_best/
-cp ./kitty/kitty.conf ~/.config/kitty/kitty.conf
+cp ./config/kitty/kitty.conf ~/.config/kitty/kitty.conf
 
 # Make nautilus extension directory if it doesn't exist 
 if [ ! -d "/usr/share/nautilus-python/extensions" ]; then
@@ -172,102 +114,75 @@ if [ ! -d "/usr/share/nautilus-python/extensions" ]; then
 fi
 
 # Add nautilus extension to open kitty from right click menu
-sudo cp ./kitty/open_any_terminal_extension.py \
+sudo cp ./config/kitty/open_any_terminal_extension.py \
     /usr/share/nautilus-python/extensions/open_any_terminal_extension.py
 nautilus -q
+echo 
 
-########################## SET UP NEOVIM ################################
-
-echo
-echo "Now we will set up Neovim"
-echo
-
-sudo cp ./nvim/neovim.desktop /usr/share/applications/neovim.desktop
-
+echo "Setting up Neovim..."
+sudo cp ./config/nvim/neovim.desktop /usr/share/applications/neovim.desktop
 # Make nvim config directory if it doesn't exists
 if [ ! -d "~/.config/nvim" ]; then
     echo "Creating ~/.config/nvim directory"
     mkdir ~/.config/nvim
 fi
-
 echo "Copying init.lua and lua directory to ~/.config/nvim"
-cp ./nvim/init.lua ~/.config/nvim/init.lua
+cp ./config/nvim/init.lua ~/.config/nvim/init.lua
 mkdir -p ~/.config/nvim/lua/gib_nvim
 mkdir -p ~/.config/nvim/after/plugin
-cp ./nvim/lua/gib_nvim/* ~/.config/nvim/lua/gib_nvim/
-
+cp ./config/nvim/lua/gib_nvim/* ~/.config/nvim/lua/gib_nvim/
 # Install packer.nvim 
 echo "Installing packer.nvim"
 git clone --depth 1 https://github.com/wbthomason/packer.nvim \
     ~/.local/share/nvim/site/pack/packer/start/packer.nvim
-
+echo
 echo "Opening packer.lua. Source the file and run \":PackerSync\""
+echo "to install all plugins."
+echo
 echo "Once complete, close the window."
 kitty -1 -e bash -c "nvim ~/.config/nvim/lua/gib_nvim/packer.lua"
 read -p "Press enter to continue."
 
-echo "Copying after directory to ~/.config/nvim"
-cp ./nvim/after/plugin/* ~/.config/nvim/after/plugin/ 
+echo echo "Copying after directory to ~/.config/nvim" 
+cp ./config/nvim/after/plugin/* ~/.config/nvim/after/plugin/ 
+echo
 echo "Opening neovim. Run \":Mason\" and install the extensions you want."
 echo "You need to run this to get the java lsp:"
-echo "In my experience, you need to install the Oracle JDK for this to work."
-echo ":MasonInstall java-language-server@v0.2.32"
+echo "Install the java SDK from Oracle to install this LSP:"
+echo " MasonInstall java-language-server@v0.2.32 "
+echo
 echo "You can also run \":Copilot setup\" to setup GitHub Copilot."
+echo
 echo "Once complete, close the window."
+echo
 kitty -1 -e "nvim"
 git config --global core.editor "nvim"
 echo "Neovim setup complete."
-
-######################### SET UP EMACS ################################
-
-git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs
-~/.config/emacs/bin/doom install
-
-emacs_path="#Emacs path\n \
-    export PATH=\"\$HOME/.config/emacs/bin:\$PATH\"\n \
-    alias emacs=\"emacsclient -c -a 'emacs'\""
-
-# Check if the code block already exists in .bashrc
-if grep -qF "$emacs_path" ~/.bashrc; then
-    echo "Emacs path already exists in .bashrc. No changes made."
-else
-    # Add the code block to .bashrc
-    echo -e "$emacs_path" >> ~/.bashrc
-    echo "Emacs path added to .bashrc successfully."
-fi
-source ~/.bashrc
-
-sudo cp ./emacs/emacs_daemon.desktop /usr/share/applications/emacs_daemon.desktop
-sudo cp ./emacs/emacs_client.desktop /usr/share/applications/emacs_client.desktop
 echo
-echo "Running doom sync."
-read -p "Press enter to continue."
 
-doom sync
+echo "Replacing Nonorc file."
+sudo cp ./config/nonorc /etc/nonorc
+echo
 
-############### COPY NANORC FILE ############################
-
-sudo cp ./nano/nanorc /etc/nanorc
-
-######################### SET UP GIT ################################
+echo "Setting up Git/GitHub..."
 git config --global user.name "gibbyb"
 git config --global user.email "gib@gibbyb.com"
 git config --global core.editor "nvim"
 git config --global init.defaultBranch "main"
 gh auth login
-
-################## INSTALL NVIDIA DRIVERS #########################
-echo 
-echo "Installing Nvidia Drivers"
 echo
 
+echo "Installing NVIDIA Drivers..."
+echo
 sudo dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda
+echo
 echo "Remove the duplicate lines \"rd.driver.blacklist=nouveau, \
     modprobe.blacklist=nouveau, and nvidia-drm.modeset=1\""
+echo
 kitty -1 -e bash -c "sudo nvim /etc/default/grub"
 # kitty -1 -e bash -c "sudo nvim /etc/gdm/custom.conf"
 read -p "Once complete, close neovim and press enter to continue."
-sudo grub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg 
+sudo grub2-mkconfig -o /etc/grub2-efi.cfg 
 echo
 echo "############## WARNING ################"
 echo "Wait 5 minutes before rebooting!"
@@ -278,13 +193,47 @@ echo
 echo "Enabling Nvidia system services"
 sudo systemctl enable nvidia-hibernate.service nvidia-suspend.service \
     nvidia-resume.service
-sudo sed -i 's/#WaylandEnable=false/WaylandEnable=false/' /etc/gdm/custom.conf
-################## SET UP WIREGUARD #########################
+read -p "Do you want to disable Wayland? (y/n) " answer_wayland
+if [ "$answer_wayland" == "y" ]; then
+    echo "Disabling Wayland"
+    sudo sed -i 's/#WaylandEnable=false/WaylandEnable=false/' \
+        /etc/gdm/custom.conf
+    echo "Enabling VNCServer service..."
+    sudo systemctl enable --now vncserver-x11-serviced.service
+fi
+echo
 
+echo 
+read -p "Should we set up asusctl (Is this your laptop?) (y/n) " roganswer
+
+if [ "$roganswer" == "y" ]; then
+    sudo dnf copr enable lukenukem/asus-linux
+    sudo dnf update
+    sudo dnf install asusctl supergfxctl
+    sudo dnf update --refresh
+    sudo systemctl enable --now supergfxd.service
+    sudo dnf install asusctl-rog-gui
+fi
+echo
+
+echo
+echo "Enrolling Key to MOK"
+echo
+sudo mokutil --import /etc/pki/akmods/certs/public_key.der
+echo
+echo "Enroll the key once you reboot."
+echo
+
+echo "Enabling Libvirt service now." 
+sudo systemctl enable --now libvirtd.service
+
+echo "Setting up Wireguard VPN..."
+echo "You will need to SSH to your server to copy the files."
+echo "So ensure that you can connect to your server, or configure yourself."
+echo "Either way, make sure to change DNS and change it to not autoconnect."
 read -p "Would you like to set up your Wireguard VPN? (y/n) " answer
 
 if [ "$answer" == "y" ]; then
-    read -p "Make sure you can SSH to your server. Press enter to continue."
     mkdir -p ~/Documents/Gib\ Files/Keys+Config\ Files/Wireguard
     # Copy files from remote server
     scp -r gib@gibbyb.com:~/Documents/Wireguard \
