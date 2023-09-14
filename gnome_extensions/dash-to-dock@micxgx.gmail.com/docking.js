@@ -445,6 +445,7 @@ const DockedDash = GObject.registerClass({
     _trackDock() {
         if (DockManager.settings.dockFixed) {
             Main.layoutManager.addChrome(this, {
+                affectsInputRegion: false,
                 trackFullscreen: true,
                 affectsStruts: true,
             });

@@ -1,6 +1,12 @@
+-- Remaps
+---------------------------------------------
+-- Set leader to space
 vim.g.mapleader = " "
 
-vim.keymap.set("n", "<leader>pv", vim.cmd.Ex)
+-- Easily get back to Normal mode.
+vim.keymap.set("i", "jk", "<Esc>")
+vim.keymap.set("i", "kj", "<Esc>")
+vim.keymap.set("i", "<C-c>", "<Esc>")
 
 -- Move the selected lines up or down one line and reselect
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
@@ -19,7 +25,10 @@ vim.keymap.set("n", "n", "nzzzv")
 -- Search backward and reposition the cursor
 vim.keymap.set("n", "N", "Nzzzv")
 
--- Replace the selected text with the contents of the black hole register
+-- Paste the selection from the system clipboard
+vim.keymap.set({"n", "v"}, "<leader>v", [["+P]])
+
+-- Move selected text to the black hole register & replace with copied text.
 vim.keymap.set("x", "<leader>p", [["_dP]])
 
 -- Yank (copy) the selection to the system clipboard
@@ -31,25 +40,14 @@ vim.keymap.set("n", "<leader>Y", [["+Y]])
 -- Delete the selection without yanking (copying) it
 vim.keymap.set({"n", "v"}, "<leader>d", [["_d]])
 
--- Exit insert mode by sending the Escape key
-vim.keymap.set("i", "<C-c>", "<Esc>")
+-- Delete the line without yanking (copying) it
+vim.keymap.set("n", "<leader>dd", [["_dd]])
 
 -- Map Q in Normal mode to do nothing (nop)
 vim.keymap.set("n", "Q", "<nop>")
 
 -- Format the current buffer using the language server protocol (LSP)
-vim.keymap.set("n", "<leader>f", vim.lsp.buf.format)
-
--- Jump to the next location in the quickfix list and reposition the cursor
-vim.keymap.set("n", "<C-k>", "<cmd>cnext<CR>zz")
--- Jump to the previous location in the quickfix list and reposition the cursor
-vim.keymap.set("n", "<C-j>", "<cmd>cprev<CR>zz")
-
--- Jump to the next location in the location list and reposition the cursor
-vim.keymap.set("n", "<leader>k", "<cmd>lnext<CR>zz")
-
--- Jump to the previous location in the location list and reposition the cursor
-vim.keymap.set("n", "<leader>j", "<cmd>lprev<CR>zz")
+vim.keymap.set("n", "<leader>lf", vim.lsp.buf.format)
 
 -- Perform a search and replace operation using the word under the cursor
 vim.keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
@@ -57,14 +55,21 @@ vim.keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><
 -- Make the current file executable (chmod +x)
 vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true })
 
--- Open the Packer configuration file
-vim.keymap.set("n", "<leader>vpp", "<cmd>e ~/.dotfiles/nvim/.config/nvim/lua/theprimeagen/packer.lua<CR>")
-
--- Make it rain
-vim.keymap.set("n", "<leader>mr", "<cmd>CellularAutomaton make_it_rain<CR>")
-
 -- Source the current file
-vim.keymap.set("n", "<leader><leader>", function()
-    vim.cmd("so")
-end)
+vim.keymap.set("n", "<leader><leader>", vim.cmd.so)
+
+
+
+
+-- Jump to the next location in the quickfix list and reposition the cursor
+-- vim.keymap.set("n", "<C-k>", "<cmd>cnext<CR>zz")
+
+-- Jump to the previous location in the quickfix list and reposition the cursor
+-- vim.keymap.set("n", "<C-j>", "<cmd>cprev<CR>zz")
+
+-- Jump to the next location in the location list and reposition the cursor
+--vim.keymap.set("n", "<leader>k", "<cmd>lnext<CR>zz")
+
+-- Jump to the previous location in the location list and reposition the cursor
+--vim.keymap.set("n", "<leader>j", "<cmd>lprev<CR>zz")
 

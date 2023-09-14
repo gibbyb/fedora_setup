@@ -33,7 +33,10 @@ if [ -f /usr/bin/powerline-daemon ]; then
     source /usr/share/powerline/bash/powerline.sh
 fi
 
-alias update="sudo dnf update -y && flatpak update -y"
+# Aliases & Exports
 alias install="sudo dnf install -y"
+alias update="sudo dnf update -y --refresh && flatpak update -y"
+alias checkupdate="sudo dnf check-update"
+alias letscode="cd ~/Documents/Code && nvim ."
 
 export SUDO_EDITOR=nvim

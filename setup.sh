@@ -10,9 +10,23 @@ sudo passwd
 echo
 echo "Importing most of the key bindings"
 # WM keybindings
-dconf load /org/gnome/desktop/wm/keybindings/ < ./shortcuts/shortcuts-wm.txt
+dconf load /org/gnome/desktop/wm/keybindings/ < ./gnome_theme/shortcuts/shortcuts-wm.txt
 # Media keybindings
-dconf load /org/gnome/settings-daemon/plugins/media-keys/ < ./shortcuts/shortcuts-media.txt
+dconf load /org/gnome/settings-daemon/plugins/media-keys/ < ./gnome_theme/shortcuts/shortcuts-media.txt
+# Mutter keybindings
+dconf load /org/gnome/mutter/keybindings/ < ./gnome_theme/shortcuts/shortcuts-mutter.txt
+# Power settings
+dconf load /org/gnome/settings-daemon/plugins/power/ < ./gnome_theme/shortcuts/shortcuts-power.txt
+# Shell keybindings
+dconf load /org/gnome/shell/keybindings/ < ./gnome_theme/shortcuts/shortcuts-shell.txt
+# Wayland keybindings
+dconf load /org/gnome/mutter/wayland/keybindings/ < ./gnome_theme/shortcuts/shortcuts-wayland.txt
+# Install Mouse Cursor themes
+tar xvf .tar.gz -C ./gnome_theme/cursor_themes/02-Layan-cursors.tar.xz ~/.local/share/icons
+tar xvf .tar.gz -C ./gnome_theme/cursor_themes/material-light-cursors.tar.gz ~/.local/share/icons
+tar xvf .tar.gz -C ./gnome_theme/cursor_themes/oreo-blue-cursors.tar.gz ~/.local/share/icons
+tar xvf .tar.gz -C ./gnome_theme/cursor_themes/oreo-purple-cursors.tar.gz ~/.local/share/icons
+tar xvf .tar.gz -C ./gnome_theme/cursor_themes/oreo-white-cursors.tar.gz ~/.local/share/icons
 echo
 
 echo "Changing some settings"
@@ -22,13 +36,16 @@ gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,m
 gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
 # Add weekday to clock in top bar 
 gsettings set org.gnome.desktop.interface clock-show-weekday true
-# Center new windows on screen
-gsettings set org.gnome.mutter center-new-windows true
+# Set mouse cursor theme
+gsettings set org.gnome.desktop.interface cursor-theme oreo_blue_cursors
+
 echo
 
-echo "Installing gnome-tweaks & gnome extensions manager"
+echo "Installing gnome-tweaks & Important Flatpaks for Gnome Theme."
 sudo dnf install -y gnome-tweaks
-flatpak install flathub -y com.mattjakeman.ExtensionManager
+flatpak install flathub -y com.mattjakeman.ExtensionManager \
+    com.bitwarden.desktop com.github.GradienceTeam.Gradience
+
 echo
 echo "Copying extensions..." 
 echo "You will be able to enable them in Extension Manager after reboot."
@@ -57,6 +74,9 @@ chmod +x ./scripts/install_flatpaks.sh
 ./scripts/install_flatpaks.sh &
 echo
 
+echo "Installing Apps in apps directory."
+chmod +x ./scripts/install_apps.sh &
+
 echo "Installing RPM Fusion, Microsoft repo & Flatpak..."
 echo
 sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
@@ -71,6 +91,8 @@ echo
 echo "Installing necessary packages..."
 echo 
 
+sudo dnf install -y ./apps/jdk-20_linux-x64_bin.rpm
+
 sudo dnf groupinstall -y "C Development Tools and Libraries"
 sudo dnf groupinstall -y "Development Tools"
 
@@ -82,8 +104,9 @@ sudo dnf install -y neovim xclip emacs git curl wget python3 python3-pip nodejs 
     mokutil openssl maven cargo dotnet microsoft-edge-stable code wine go gem \
     luarocks texlive python3-tkinter dnf-plugins-core python3-dnf-plugin-versionlock \
     xkill mangohud airtv dia firewall-config godot scratch texstudio winetricks \
-    wireshark seahorse gnome-connections dia dotnet-sdk-7.0 wine-mono \
-    heroic-games-launcher-bin
+    wireshark seahorse gnome-connections dia dotnet-sdk-7.0 wine-mono adw-gtk_theme \
+    heroic-games-launcher-bin python-pygit2 meld nautilus-extensions python-requests \
+    python3-gobject 
 echo
 echo "All DNF packages installed."
 echo
@@ -107,6 +130,9 @@ mkdir -p ~/Pictures/Wallpapers/Best_of_the_best
 cp ./Wallpapers/* ~/Pictures/Wallpapers/Best_of_the_best/
 cp ./config/kitty/kitty.conf ~/.config/kitty/kitty.conf
 
+# Copy JetBrains Mono Nerd Font to fonts folder
+sudo mv ./config/kitty/JetBrainsMono /usr/share/fonts/JetBrainsMono
+
 # Make nautilus extension directory if it doesn't exist 
 if [ ! -d "/usr/share/nautilus-python/extensions" ]; then
     echo "Creating /usr/share/nautilus-python/extensions directory"
@@ -116,7 +142,23 @@ fi
 # Add nautilus extension to open kitty from right click menu
 sudo cp ./config/kitty/open_any_terminal_extension.py \
     /usr/share/nautilus-python/extensions/open_any_terminal_extension.py
+git clone https://gitlab.gnome.org/philippun1/turtle ~/Downloads/turtle
+cd ~/Downloads/turtle
+python install.py install --user
+pip3 install . --user
 nautilus -q
+nautilus --no-desktop
+cd ~/Downloads/fedora_setup
+
+echo 
+echo "Installing Python packages..."
+pip install matplotlib numpy appdirs datetime pygame
+echo 
+
+echo 
+echo "Installing Node packages..."
+sudo npm install -g typescript tailwind live-server pm2 create-react-app express \
+    mysql2 next nest
 echo 
 
 echo "Setting up Neovim..."
@@ -126,7 +168,8 @@ if [ ! -d "~/.config/nvim" ]; then
     echo "Creating ~/.config/nvim directory"
     mkdir ~/.config/nvim
 fi
-echo "Copying init.lua and lua directory to ~/.config/nvim"
+mkdir -p ~/.config/coc/extensions/coc-stylua-data
+echo "Copying init.lua, & lua directory to ~/.config/nvim"
 cp ./config/nvim/init.lua ~/.config/nvim/init.lua
 mkdir -p ~/.config/nvim/lua/gib_nvim
 mkdir -p ~/.config/nvim/after/plugin
@@ -142,16 +185,11 @@ echo
 echo "Once complete, close the window."
 kitty -1 -e bash -c "nvim ~/.config/nvim/lua/gib_nvim/packer.lua"
 read -p "Press enter to continue."
-
 echo echo "Copying after directory to ~/.config/nvim" 
 cp ./config/nvim/after/plugin/* ~/.config/nvim/after/plugin/ 
 echo
-echo "Opening neovim. Run \":Mason\" and install the extensions you want."
-echo "You need to run this to get the java lsp:"
-echo "Install the java SDK from Oracle to install this LSP:"
-echo " MasonInstall java-language-server@v0.2.32 "
-echo
-echo "You can also run \":Copilot setup\" to setup GitHub Copilot."
+echo "Opening neovim. Run \":Copilot setup\" to setup GitHub Copilot."
+echo ":MasonInstall java-language-server@v0.2.32 installs the only working Java LSP."
 echo
 echo "Once complete, close the window."
 echo
@@ -160,8 +198,8 @@ git config --global core.editor "nvim"
 echo "Neovim setup complete."
 echo
 
-echo "Replacing Nonorc file."
-sudo cp ./config/nonorc /etc/nonorc
+echo "Replacing Nanorc file."
+sudo cp ./config/nanorc /etc/nanorc
 echo
 
 echo "Setting up Git/GitHub..."

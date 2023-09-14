@@ -4,7 +4,7 @@
 rm -r ~/Documents/Gib\ Files/Keys+Config\ Files/Wireguard
 
 # Copy files from remote server
-scp -r gib@gibbyb.com:~/Documents/Wireguard ~/Documents/Gib\ Files/Keys+Config\ Files
+scp -r gib@server.gib:~/Documents/Wireguard ~/Documents/Gib\ Files/Keys+Config\ Files
 
 # Rename directories and files
 mv ~/Documents/Gib\ Files/Keys+Config\ Files/Wireguard/peer1 ~/Documents/Gib\ Files/Keys+Config\ Files/Wireguard/gib-laptop

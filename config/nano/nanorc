@@ -72,7 +72,7 @@ set atblanks
 # set historylog
 
 ## Display a "scrollbar" on the righthand side of the edit window.
-# set indicator
+set indicator
 
 ## Scroll the buffer contents per half-screen instead of per line.
 # set jumpyscrolling
@@ -177,10 +177,10 @@ set speller "hunspell"
 # set stateflags
 
 ## Use this tab size instead of the default; it must be greater than 0.
-# set tabsize 4
+set tabsize 4
 
 ## Convert each typed tab to the fitting number of spaces.
-# set tabstospaces
+set tabstospaces
 
 ## Snip whitespace at the end of lines when justifying or hard-wrapping.
 # set trimblanks
@@ -212,20 +212,19 @@ set speller "hunspell"
 ## Hide the bars plus help lines and use the whole terminal as edit area.
 # set zero
 
-
 ## Paint the interface elements of nano.  These are examples; there are
 ## no colors by default, except for errorcolor and spotlightcolor.
-set titlecolor bold,white,blue
-##set promptcolor lightwhite,grey
-##set statuscolor bold,white,green
-set errorcolor bold,white,red
-set spotlightcolor black,lightyellow
-set selectedcolor lightwhite,magenta
-##set stripecolor ,yellow
-##set scrollercolor cyan
-set numbercolor bold,blue
-set keycolor bold,white,blue
-set functioncolor bold,white
+set titlecolor bold,lightwhite,lightblack
+set promptcolor lightwhite,lightblack
+set statuscolor bold,white,lightblack
+set errorcolor lightwhite,red
+set spotlightcolor bold,lightblack,lightmagenta
+set selectedcolor lightblack,lightmagenta
+set stripecolor ,blue
+set scrollercolor white
+set numbercolor lightwhite
+set keycolor bold,lightwhite,lightblack
+set functioncolor bold,lightwhite
 
 ## In root's .nanorc you might want to use:
 ##set titlecolor bold,white,magenta

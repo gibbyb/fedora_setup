@@ -26,4 +26,6 @@ vim.opt.isfname:append("@-@")
 
 vim.opt.updatetime = 50
 
-vim.opt.colorcolumn = "80"
+vim.opt.colorcolumn = "90"
+vim.o.background = "dark" -- or "light" for light mode
+vim.cmd([[colorscheme tokyonight-moon]])
