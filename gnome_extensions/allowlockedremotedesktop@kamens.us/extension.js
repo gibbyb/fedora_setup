@@ -20,36 +20,36 @@
 
 /* exported init */
 
-class Extension {
-    constructor() {
-    }
+export default class Extension {
+  constructor() {}
 
-    enable() {
-        if (this.orig)
-            return;
-        this.orig = global.backend.get_remote_access_controller().
-            inhibit_remote_access;
-        global.backend.get_remote_access_controller().
-            inhibit_remote_access = () => {};
-        log("Remote desktop connections while screen is locked are " +
-            "now ENABLED");
-    }
+  enable() {
+    if (this.orig) return;
+    this.orig =
+      global.backend.get_remote_access_controller().inhibit_remote_access;
+    global.backend.get_remote_access_controller().inhibit_remote_access =
+      () => {};
+    console.log(
+      "Remote desktop connections while screen is locked are " + "now ENABLED",
+    );
+  }
 
-    disable() {
-        // Note that this will not be called when the screen is locked because
-        // "unlock-dialog" is included in "session-modes" in metada.json. This
-        // is necessary because the whole point of this extension is to allow
-        // remote desktop connections when the screen is locked.
-        if (! this.orig)
-            return;
-        global.backend.get_remote_access_controller().
-            inhibit_remote_access = this.orig;
-        this.orig = null;
-        log("Remote desktop connections while screen is locked are " +
-            "now DISABLED");
-    }
+  disable() {
+    // Note that this will not be called when the screen is locked because
+    // "unlock-dialog" is included in "session-modes" in metada.json. This
+    // is necessary because the whole point of this extension is to allow
+    // remote desktop connections when the screen is locked.
+    if (!this.orig) return;
+    global.backend.get_remote_access_controller().inhibit_remote_access =
+      this.orig;
+    this.orig = null;
+    console.log(
+      "Remote desktop connections while screen is locked are " +
+        "now DISABLED",
+    );
+  }
 }
 
 function init() {
-    return new Extension();
+  return new Extension();
 }

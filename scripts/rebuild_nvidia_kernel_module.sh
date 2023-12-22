@@ -1,4 +1,4 @@
-!#/bin/bash
+#!/bin/bash
 cp $(which akmods) /tmp/akmods
 
 sed -i 's/dnf -y install/dnf -y reinstall/' /tmp/akmods

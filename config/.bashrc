@@ -33,10 +33,20 @@ if [ -f /usr/bin/powerline-daemon ]; then
     source /usr/share/powerline/bash/powerline.sh
 fi
 
+# Emacs path
+export PATH="$HOME/.config/emacs/bin:$PATH"
+export PATH="/home/gib/.cargo/bin:$PATH"
 # Aliases & Exports
-alias install="sudo dnf install -y"
+alias emacs="emacsclient -c -a 'emacs'"
 alias update="sudo dnf update -y --refresh && flatpak update -y"
-alias checkupdate="sudo dnf check-update"
-alias letscode="cd ~/Documents/Code && nvim ."
+alias install="sudo dnf install -y"
+alias letscode="cd ~/Documents/Code && nvim "
+alias letscode.="cd ~/Documents/Code && nvim ."
+alias gtext="gnome-text-editor"
+alias :q="exit"
 
 export SUDO_EDITOR=nvim
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH=$BUN_INSTALL/bin:$PATH

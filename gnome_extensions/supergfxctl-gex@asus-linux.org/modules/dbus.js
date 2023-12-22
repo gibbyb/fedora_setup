@@ -1,113 +1,96 @@
-const Me = imports.misc.extensionUtils.getCurrentExtension();
-const { Gio } = imports.gi;
-const Resources = Me.imports.helpers.resource_helpers;
-const Log = Me.imports.modules.log;
-const { PanelHelper } = Me.imports.helpers.panel_helper;
-const { LabelHelper, LabelType } = Me.imports.helpers.label_helper;
+import Gio from 'gi://Gio';
+import * as Resources from '../helpers/resource_helpers.js';
+import * as Log from './log.js';
+import { PanelHelper } from '../helpers/panel_helper.js';
+import { LabelHelper } from '../helpers/label_helper.js';
 
-var DBus = class DBus {
+export class DBus {
     labels;
     gpuModeToggle;
     proxy;
     sgfxVendor = '';
     sgfxLastState = 6;
-    sgfxPowerState = 3;
+    sgfxPowerState = 5;
     sgfxSupportedGPUs = [];
     connected = false;
 
     constructor(gpuModeToggle) {
         this.gpuModeToggle = gpuModeToggle;
-        this.proxy = new Gio.DBusProxy.makeProxyWrapper(Resources.File.DBus('org-supergfxctl-gfx-5'))(Gio.DBus.system, 'org.supergfxctl.Daemon', '/org/supergfxctl/Gfx');
-        if ((this.connected = this.supportedMode) && this.initialize()) {
-
-            try {
-                const lastState = this.lastState;
-                const lastPState = this.lastPowerState;
-                const lVar = `${this.labels.get(LabelType.GfxMenu, lastState)} (${this.labels.get(LabelType.Power, lastPState)}})`;
-                const gpuIconName = `gpu-${this.labels.get(LabelType.Gfx, lastState) +
-                    this.labels.get(LabelType.PowerFileName, lastPState) ==
-                    'active'
-                    ? '-active'
-                    : ''}`;
-                if (this.labels.gsVersion >= 44)
-                    this.gpuModeToggle.title = lVar;
-                else
-                    this.gpuModeToggle.label = lVar;
-                this.gpuModeToggle.gicon = Resources.Icon.getByName(gpuIconName);
-                this.gpuModeToggle.menu.setHeader(Resources.Icon.getByName(gpuIconName), `${this.labels.get(LabelType.GfxMenu, lastState)} (${this.labels.get(LabelType.Power, lastPState)})`);
-            }
-            catch (e) {
-                PanelHelper.notify('Could not establish connection to supergfxctl!', 'gpu-integrated-active', '', 3);
-                Log.error('Graphics Mode DBus initialization using supergfxctl failed after making the connection!', e);
-            }
-        }
+        this.proxy = new Gio.DBusProxy.makeProxyWrapper(Resources.File.DBus('org-supergfxctl-gfx-5', this.gpuModeToggle._exPath))(Gio.DBus.system, 'org.supergfxctl.Daemon', '/org/supergfxctl/Gfx');
     }
-
-    initialize() {
-        Log.info('initializing DBus interface...');
+    async initialize() {
 
         try {
-            this.initLabels();
-            if (this.labels.v51) {
+            await this.initLabels();
+            if (this.labels.v51)
                 this.sgfxLastState = 7;
+            const sup = await this.proxy.SupportedAsync();
+            if (Array.isArray(sup) && Array.isArray(sup[0])) {
+                this.sgfxSupportedGPUs = sup[0].map((n) => parseInt(n) || 0);
+                this.connected = sup[0].length === this.sgfxSupportedGPUs.length;
             }
-            this.vendor;
-            this.gfxMode;
-            this.gpuPower;
-            this.connectSignals();
+            if (this.connected) {
+                await this.vendor();
+                await this.gfxMode();
+                await this.gpuPower();
+                this.connectNotifySignal();
+                this.connectPowerSignal();
+
+                try {
+                    const lastState = this.lastState;
+                    const lastPState = this.lastPowerState;
+                    const lVar = `${this.labels.get(1, lastState)} (${this.labels.get(2, lastPState)}})`;
+                    const gpuIconName = `gpu-${this.labels.get(0, lastState) +
+                        this.labels.get(3, lastPState) ==
+                        'active'
+                        ? '-active'
+                        : ''}`;
+                    if (this.labels.gsVersion >= 44)
+                        this.gpuModeToggle.title = lVar;
+                    else
+                        this.gpuModeToggle.label = lVar;
+                    this.gpuModeToggle.gicon = Resources.Icon.getByName(gpuIconName);
+                    this.gpuModeToggle.menu.setHeader(Resources.Icon.getByName(gpuIconName), `${this.labels.get(1, lastState)} (${this.labels.get(2, lastPState)})`);
+                }
+                catch {
+                    PanelHelper.notify('DBus: Could not establish connection to supergfxctl!', 'gpu-integrated-active', '', 3);
+                    Log.error('DBus: initializing interface: failed after making the connection!');
+                }
+            }
         }
         catch {
-            Log.error('initializing DBus failed!');
-            return false;
+            Log.error('DBus: initializing interface: aborted!');
         }
-        Log.info('initialized DBus interface.');
-        return true;
     }
-
-    connectSignals() {
-        this.connectNotifySignal();
-        this.connectPowerSignal();
-    }
-
-    get supportedMode() {
-        const supp = this.proxy.SupportedSync();
-        if (Array.isArray(supp) && Array.isArray(supp[0])) {
-            this.sgfxSupportedGPUs = supp[0].map((n) => parseInt(n) || 0);
-            return supp[0].length === this.sgfxSupportedGPUs.length;
-        }
-        Log.warn('Graphics Mode DBus: get current mode failed!');
-        return false;
-    }
-
-    initLabels() {
+    async initLabels() {
 
         try {
-            this.labels = new LabelHelper(this.proxy.VersionSync().toString().split('.'));
+            this.labels = new LabelHelper((await this.proxy.VersionAsync()).toString().split('.'));
         }
-        catch (e) {
-            Log.error('Graphics Mode DBus: get current version failed!', e);
+        catch {
+            Log.error('DBus: initializing labels: get current version failed!');
         }
     }
 
     connectNotifySignal() {
 
         try {
-            this.proxy.connectSignal('NotifyAction', (proxy = null, name, value) => {
+            this.proxy.connectSignal('NotifyAction', (_proxy = null, _name, value) => {
                 let newMode = parseInt(this.proxy.ModeSync());
-                let details = `Graphics Mode has changed.`;
+                let details = `has changed.`;
                 let icon = 'gpu-integrated-active';
                 let switchable = true;
 
-                switch (this.labels.get(LabelType.UserAction, value)) {
+                switch (this.labels.get(4, value)) {
                     case 'integrated':
                         details = `You must switch to Integrated mode before switching to VFIO.`;
                         switchable = false;
                         break;
                     case 'none':
-                        details = `Graphics Mode changed to ${this.labels.get(LabelType.Gfx, newMode)}`;
+                        details = `changed to ${this.labels.get(0, newMode)}`;
                         break;
                     default:
-                        details = `Graphics Mode changed. Please save your work and ${this.labels.get(LabelType.UserAction, value)} to apply the changes.`;
+                        details = `changed. Please save your work and ${this.labels.get(4, value)} to apply the changes.`;
                         icon = 'reboot';
                         break;
                 }
@@ -115,31 +98,31 @@ var DBus = class DBus {
                     this.sgfxLastState = newMode;
                     this.gpuModeToggle.refresh();
                 }
-                PanelHelper.notify(details, icon, this.labels.get(LabelType.UserAction, value));
+                PanelHelper.notify(details, icon, this.labels.get(4, value));
             });
         }
-        catch (error) {
-            Log.error(`Error connecting Signal, no live updates of GPU modes!`, error);
+        catch {
+            Log.error(`DBus: connecting signal: Error, no live updates of GPU modes!`);
         }
     }
 
     connectPowerSignal() {
 
         try {
-            this.proxy.connectSignal('NotifyGfxStatus', (proxy = null, name, value) => {
+            this.proxy.connectSignal('NotifyGfxStatus', (_proxy = null, _name, value) => {
                 if (this.sgfxPowerState !== value[0]) {
                     this.sgfxPowerState = value[0];
                     if (this.sgfxPowerState == 0 && this.sgfxLastState == 1) {
 
                         try {
                             let mode = parseInt(this.proxy.ModeSync());
-                            if (this.labels.is(LabelType.Gfx, mode, 'integrated'))
+                            if (this.labels.is(0, mode, 'integrated'))
                                 PanelHelper.notify(`Your dedicated GPU turned on while you are on the integrated mode. This should not happen. It could be that another application rescanned your PCI bus. Rebooting is advised.`, 'gif/fire.gif', 'reboot');
                             else if (this.sgfxLastState !== mode)
                                 this.sgfxLastState = mode;
                         }
-                        catch (e) {
-                            Log.error('Graphics Mode DBus getting mode failed!', e);
+                        catch {
+                            Log.error('DBus: getting mode: failed!');
                         }
                     }
                     this.gpuModeToggle.refresh();
@@ -147,57 +130,61 @@ var DBus = class DBus {
             });
         }
         catch (error) {
-            Log.error(`Error connecting Signal, no live updates of GPU modes!`, error);
+            Log.error(`DBus: connecting signal: Error, no live updates of power modes!`, error);
         }
     }
-
-    get vendor() {
+    async vendor() {
 
         try {
-            return (this.sgfxVendor = this.proxy.VendorSync());
+            this.sgfxVendor = await this.proxy.VendorAsync();
         }
-        catch (e) {
-            Log.error('Graphics Mode DBus: get current vendor failed!', e);
+        catch {
+            Log.error('DBus: get current vendor: failed!');
         }
         return this.sgfxVendor;
     }
-
-    get gfxMode() {
+    async gfxMode(mode = -1) {
 
         try {
-            return (this.sgfxLastState = parseInt(this.proxy.ModeSync()));
+            if (mode >= 0) {
+
+                try {
+                    await this.proxy.SetModeAsync(mode);
+                }
+                catch (e) {
+                    Log.error('DBus: switching mode: failed!');
+                    PanelHelper.notify(e.toString(), 'gif/fire.gif');
+                }
+            }
+            this.sgfxLastState = parseInt(await this.proxy.ModeAsync());
         }
-        catch (e) {
-            Log.error('Graphics Mode DBus: get current mode failed!', e);
+        catch {
+            Log.error('DBus: get current mode: failed!');
         }
         return this.sgfxLastState;
     }
-
-    set gfxMode(mode) {
-
-        try {
-            this.proxy.SetModeSync(mode);
-        }
-        catch (e) {
-            Log.error('Graphics Mode DBus switching failed!', e);
-            PanelHelper.notify(e.toString(), 'gif/fire.gif');
-        }
-    }
-
-    get gpuPower() {
+    async gpuPower() {
 
         try {
-            this.sgfxPowerState = parseInt(this.proxy.PowerSync().toString().trim());
+            this.sgfxPowerState = parseInt((await this.proxy.PowerAsync()).toString().trim());
         }
-        catch (e) {
-            Log.error('Graphics Mode DBus getting power mode failed!', e);
-            this.sgfxPowerState = 3;
+        catch {
+            Log.error('DBus: getting power mode: failed!');
+            this.sgfxPowerState = 5;
         }
         return this.sgfxPowerState;
     }
 
     get supported() {
-        return this.connected ? this.sgfxSupportedGPUs : [];
+        if (this.connected) {
+            if (this.sgfxSupportedGPUs.length === 1 &&
+                ((this.labelHelper.v50 && this.sgfxSupportedGPUs[0] === 4) ||
+                    (this.labelHelper.v51 && this.sgfxSupportedGPUs[0] === 5))) {
+                return [0].concat(this.sgfxSupportedGPUs);
+            }
+            return this.sgfxSupportedGPUs;
+        }
+        return [];
     }
 
     get lastState() {
@@ -205,7 +192,7 @@ var DBus = class DBus {
     }
 
     get lastPowerState() {
-        return this.connected ? this.sgfxPowerState : 3;
+        return this.connected ? this.sgfxPowerState : 5;
     }
 
     get labelHelper() {

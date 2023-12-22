@@ -1,5 +1,7 @@
 # Fedora Setup Script
 
+## The most up to date, and fully featured version of this repo is available at [My Self Hosted Git Repo](https://git.gibbyb.com/gib/fedora_setup)
+
 My personal Fedora Setup script.
 
 - Background Color for Gradience, Dash to Dock, & Blur My Shell: rgba(46,47,61,0.98)

@@ -8,7 +8,7 @@ return require('packer').startup(function(use)
 	use 'wbthomason/packer.nvim'
 
 	use {
-		'nvim-telescope/telescope.nvim', tag = '0.1.0',
+		'nvim-telescope/telescope.nvim', tag = '0.1.5',
 		-- or                            , branch = '0.1.x',
 		requires = { {'nvim-lua/plenary.nvim'} }
 	}
@@ -74,7 +74,7 @@ return require('packer').startup(function(use)
       use {
           "nvim-neo-tree/neo-tree.nvim",
           branch = "v3.x",
-          requires = { 
+          requires = {
               "nvim-lua/plenary.nvim",
               "nvim-tree/nvim-web-devicons", -- not strictly required, but recommended
               "MunifTanjim/nui.nvim",

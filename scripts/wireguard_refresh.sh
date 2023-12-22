@@ -12,8 +12,8 @@ mv ~/Documents/Gib\ Files/Keys+Config\ Files/Wireguard/peer2 ~/Documents/Gib\ Fi
 mv ~/Documents/Gib\ Files/Keys+Config\ Files/Wireguard/gib-laptop/peer1.conf ~/Documents/Gib\ Files/Keys+Config\ Files/Wireguard/gib-laptop/Home.conf
 
 # Delete existing network connection
-sudo nmcli connection delete Home
+# sudo nmcli connection delete Home
 
 # Import wireguard connection
-sudo nmcli connection import type wireguard file ~/Documents/Gib\ Files/Keys+Config\ Files/Wireguard/gib-laptop/Home.conf
+# sudo nmcli connection import type wireguard file ~/Documents/Gib\ Files/Keys+Config\ Files/Wireguard/gib-laptop/Home.conf
 

@@ -3,12 +3,24 @@
 echo "FEDORA SETUP SCRIPT"
 echo
 echo "Run this script from the cloned directory without sudo."
+echo "It is also suggested to run the install_packages and install_flatpaks sripts before you run this script."
+echo "Those can take quite a while so it is better to separate them and run them first."
+echo
 read - p "Press enter to continue"
 echo
-echo "Change the root password"
-sudo passwd
+read -p "Do you want to change the root password? I would recommend not doing this. (y/n) " answer_root_passwd
 echo
-echo "Importing most of the key bindings"
+if [ "$answer_root_passwd" == "y" ]; then
+    echo "Change your root password..."
+    sudo passwd
+fi
+
+read -p "Name of Computer (Hostname): " hostname_response
+sudo hostnamectl set-hostname $hostname_response
+
+echo
+echo "Importing key bindings..."
+echo
 # WM keybindings
 dconf load /org/gnome/desktop/wm/keybindings/ < ./gnome_theme/shortcuts/shortcuts-wm.txt
 # Media keybindings
@@ -21,15 +33,18 @@ dconf load /org/gnome/settings-daemon/plugins/power/ < ./gnome_theme/shortcuts/s
 dconf load /org/gnome/shell/keybindings/ < ./gnome_theme/shortcuts/shortcuts-shell.txt
 # Wayland keybindings
 dconf load /org/gnome/mutter/wayland/keybindings/ < ./gnome_theme/shortcuts/shortcuts-wayland.txt
-# Install Mouse Cursor themes
-tar xvf .tar.gz -C ./gnome_theme/cursor_themes/02-Layan-cursors.tar.xz ~/.local/share/icons
-tar xvf .tar.gz -C ./gnome_theme/cursor_themes/material-light-cursors.tar.gz ~/.local/share/icons
-tar xvf .tar.gz -C ./gnome_theme/cursor_themes/oreo-blue-cursors.tar.gz ~/.local/share/icons
-tar xvf .tar.gz -C ./gnome_theme/cursor_themes/oreo-purple-cursors.tar.gz ~/.local/share/icons
-tar xvf .tar.gz -C ./gnome_theme/cursor_themes/oreo-white-cursors.tar.gz ~/.local/share/icons
+echo
+echo "Installing mouse cursor themes..."
+mkdir -p ~/.local/share/icons
+tar xvf ./gnome_theme/cursor_themes/02-Layan-cursors.tar.xz -C ~/.local/share/icons
+tar xvf ./gnome_theme/cursor_themes/material-light-cursors.tar.gz -C ~/.local/share/icons
+tar xvf ./gnome_theme/cursor_themes/oreo-blue-cursors.tar.gz -C ~/.local/share/icons
+tar xvf ./gnome_theme/cursor_themes/oreo-purple-cursors.tar.gz -C ~/.local/share/icons
+tar xvf ./gnome_theme/cursor_themes/oreo-white-cursors.tar.gz -C ~/.local/share/icons
 echo
 
-echo "Changing some settings"
+
+echo "Changing some Gnome settings..."
 # Add maximize and minimize buttons to windows
 gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
 # Set gtk theme to Adwaita-dark 
@@ -38,13 +53,17 @@ gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
 gsettings set org.gnome.desktop.interface clock-show-weekday true
 # Set mouse cursor theme
 gsettings set org.gnome.desktop.interface cursor-theme oreo_blue_cursors
-
+# Set timeout time to 30 seconds to get rid of the annoying pop up.
+gsettings set org.gnome.mutter check-alive-timeout 30000
+# Enable fractional scaling
+gsettings set org.gnome.mutter experimental-features "['scale-monitor-framebuffer']"
 echo
 
 echo "Installing gnome-tweaks & Important Flatpaks for Gnome Theme."
 sudo dnf install -y gnome-tweaks
 flatpak install flathub -y com.mattjakeman.ExtensionManager \
-    com.bitwarden.desktop com.github.GradienceTeam.Gradience
+    com.bitwarden.desktop com.github.GradienceTeam.Gradience \
+    org.gtk.Gtk3theme.adw-gtk3-dark 
 
 echo
 echo "Copying extensions..." 
@@ -64,55 +83,12 @@ sudo echo "fastestmirror=True" | sudo tee -a /etc/dnf/dnf.conf
 sudo echo "max_parallel_downloads=10" | sudo tee -a /etc/dnf/dnf.conf
 sudo echo "defaultyes=True" | sudo tee -a /etc/dnf/dnf.conf
 sudo echo "keepcache=True" | sudo tee -a /etc/dnf/dnf.conf
+sudo echo "deltarpm=True" | sudo tee -a /etc/dnf/dnf.conf
 echo
-
-echo "We will update the system for the first time now."
-sudo dnf update -y --refresh
-
-echo "Installing flatpaks in another terminal window."
-chmod +x ./scripts/install_flatpaks.sh
-./scripts/install_flatpaks.sh &
 echo
-
-echo "Installing Apps in apps directory."
-chmod +x ./scripts/install_apps.sh &
-
-echo "Installing RPM Fusion, Microsoft repo & Flatpak..."
+read -p "If you have not yet run the install_packages and install_flatpaks scripts, do so now. Once they have run, press enter." 
 echo
-sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
-    https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm 
-sudo dnf groupupdate core -y
-sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
-sudo dnf config-manager --add-repo https://packages.microsoft.com/yumrepos/edge
-printf "[vscode]\nname=packages.microsoft.com\nbaseurl=https://packages.microsoft.com/yumrepos/vscode/\nenabled=1\ngpgcheck=1\nrepo_gpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc\nmetadata_expire=1h" | sudo tee -a /etc/yum.repos.d/vscode.repo
-sudo dnf copr enable atim/heroic-games-launcher -y
 echo
-
-echo "Installing necessary packages..."
-echo 
-
-sudo dnf install -y ./apps/jdk-20_linux-x64_bin.rpm
-
-sudo dnf groupinstall -y "C Development Tools and Libraries"
-sudo dnf groupinstall -y "Development Tools"
-
-sudo dnf install -y neovim xclip emacs git curl wget python3 python3-pip nodejs \
-    npm gcc g++ make cmake clang clang-tools-extra clang-analyzer htop neofetch \
-    steam lutris kitty powerline powerline-fonts nautilus-python php-fpm composer \
-    kernel-devel gh qemu-kvm-core libvirt virt-manager java-latest-openjdk-devel \
-    nextcloud-client gparted timeshift jetbrains-mono-fonts-all kmodtool akmods \
-    mokutil openssl maven cargo dotnet microsoft-edge-stable code wine go gem \
-    luarocks texlive python3-tkinter dnf-plugins-core python3-dnf-plugin-versionlock \
-    xkill mangohud airtv dia firewall-config godot scratch texstudio winetricks \
-    wireshark seahorse gnome-connections dia dotnet-sdk-7.0 wine-mono adw-gtk_theme \
-    heroic-games-launcher-bin python-pygit2 meld nautilus-extensions python-requests \
-    python3-gobject 
-echo
-echo "All DNF packages installed."
-echo
-
-
-
 echo "Replacing .bashrc file."
 cp ./config/.bashrc ~/.bashrc
 source ~/.bashrc
@@ -150,17 +126,6 @@ nautilus -q
 nautilus --no-desktop
 cd ~/Downloads/fedora_setup
 
-echo 
-echo "Installing Python packages..."
-pip install matplotlib numpy appdirs datetime pygame
-echo 
-
-echo 
-echo "Installing Node packages..."
-sudo npm install -g typescript tailwind live-server pm2 create-react-app express \
-    mysql2 next nest
-echo 
-
 echo "Setting up Neovim..."
 sudo cp ./config/nvim/neovim.desktop /usr/share/applications/neovim.desktop
 # Make nvim config directory if it doesn't exists
@@ -168,7 +133,6 @@ if [ ! -d "~/.config/nvim" ]; then
     echo "Creating ~/.config/nvim directory"
     mkdir ~/.config/nvim
 fi
-mkdir -p ~/.config/coc/extensions/coc-stylua-data
 echo "Copying init.lua, & lua directory to ~/.config/nvim"
 cp ./config/nvim/init.lua ~/.config/nvim/init.lua
 mkdir -p ~/.config/nvim/lua/gib_nvim
@@ -198,8 +162,13 @@ git config --global core.editor "nvim"
 echo "Neovim setup complete."
 echo
 
+echo "Setting up Ranger..."
+echo
+mkdir ~/.config/ranger
+cp ./config/ranger/* ~/.config/ranger/
+
 echo "Replacing Nanorc file."
-sudo cp ./config/nanorc /etc/nanorc
+sudo cp ./config/nano/nanorc /etc/nanorc
 echo
 
 echo "Setting up Git/GitHub..."
@@ -210,27 +179,36 @@ git config --global init.defaultBranch "main"
 gh auth login
 echo
 
-echo "Installing NVIDIA Drivers..."
+echo "Setting up Lobster"
+sudo curl -sL github.com/justchokingaround/lobster/raw/main/lobster.sh -o \
+    /usr/local/bin/lobster && sudo chmod +x /usr/local/bin/lobster
+cp ./config/lobster/lobster_config.txt ~/.config/lobster/lobster_config.txt
 echo
-sudo dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda
+read -p "Would you like to install NVIDIA Drivers? (y/n) " answer_nvidia
+if [ "$answer_nvidia" == "y" ]; then
+    echo "Installing NVIDIA Drivers..."
+    echo
+    sudo dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda
+    echo
+    echo "Remove the duplicate lines \"rd.driver.blacklist=nouveau, \
+        modprobe.blacklist=nouveau, and nvidia-drm.modeset=1\""
+    echo
+    kitty -1 -e bash -c "sudo nvim /etc/default/grub"
+    # kitty -1 -e bash -c "sudo nvim /etc/gdm/custom.conf"
+    read -p "Once complete, close neovim and press enter to continue."
+    sudo grub2-mkconfig -o /etc/grub2-efi.cfg 
+    echo
+    echo "############## WARNING ################"
+    echo "Wait 5 minutes before rebooting!"
+    echo "Nividia drivers MUST finish building!"
+    echo "############## WARNING ################" 
+    read -p "Press enter once the drivers have finished building."
+    echo
+    echo "Enabling Nvidia system services"
+    sudo systemctl enable nvidia-hibernate.service nvidia-suspend.service \
+        nvidia-resume.service nvidia-powerd.service
+fi
 echo
-echo "Remove the duplicate lines \"rd.driver.blacklist=nouveau, \
-    modprobe.blacklist=nouveau, and nvidia-drm.modeset=1\""
-echo
-kitty -1 -e bash -c "sudo nvim /etc/default/grub"
-# kitty -1 -e bash -c "sudo nvim /etc/gdm/custom.conf"
-read -p "Once complete, close neovim and press enter to continue."
-sudo grub2-mkconfig -o /etc/grub2-efi.cfg 
-echo
-echo "############## WARNING ################"
-echo "Wait 5 minutes before rebooting!"
-echo "Nividia drivers MUST finish building!"
-echo "############## WARNING ################" 
-read -p "Press enter once the drivers have finished building."
-echo
-echo "Enabling Nvidia system services"
-sudo systemctl enable nvidia-hibernate.service nvidia-suspend.service \
-    nvidia-resume.service
 read -p "Do you want to disable Wayland? (y/n) " answer_wayland
 if [ "$answer_wayland" == "y" ]; then
     echo "Disabling Wayland"
@@ -240,10 +218,8 @@ if [ "$answer_wayland" == "y" ]; then
     sudo systemctl enable --now vncserver-x11-serviced.service
 fi
 echo
-
 echo 
 read -p "Should we set up asusctl (Is this your laptop?) (y/n) " roganswer
-
 if [ "$roganswer" == "y" ]; then
     sudo dnf copr enable lukenukem/asus-linux
     sudo dnf update
@@ -261,7 +237,6 @@ sudo mokutil --import /etc/pki/akmods/certs/public_key.der
 echo
 echo "Enroll the key once you reboot."
 echo
-
 echo "Enabling Libvirt service now." 
 sudo systemctl enable --now libvirtd.service
 
@@ -288,7 +263,39 @@ if [ "$answer" == "y" ]; then
     sudo nmcli connection import type wireguard file \
         ~/Documents/Gib\ Files/Keys+Config\ Files/Wireguard/gib-laptop/Home.conf
 fi
-
 echo
-echo "All done! Now delete this ugly terminal."
+echo "Installing Grub-Btrfs..."
+git clone https://github.com/Antynea/grub-btrfs
+mv ./config/grub-btrfs/config ./grub-btrfs/config
+cd ./grub-btrfs
+sudo dnf install -y inotify-tools
+sudo make install
+sudo grub2-mkconfig -o /etc/grub2-efi.cfg
+sudo systemctl enable --now grub-btrfsd
+echo
+echo "Replace \"ExecStart=/usr/bin/grub-btrfsd /.snapshots --syslog\""
+echo "with \"ExecStart=/usr/bin/grub-btrfsd --syslog --timeshift-auto\""
+echo
+read -p "Copy the line and press enter to continue."
+echo
+sudo systemctl edit --full grub-btrfsd
+echo
+echo "Save the file and close the window then press enter to continue."
+echo
+sudo systemctl restart grub-btrfsd
+echo
+echo "We're going to get rid of the ugly ass Nextcloud Folders in Sidebar of Nautilus"
+echo
+sudo rm /usr/share/cloud-providers/com.nextcloudgmbh.Nextcloud.ini
+echo "You need to remove the following lines from the .desktop file."
+echo
+echo "-Implements=org.freedesktop.CloudProviders"
+echo
+echo "[org.freedesktop.CloudProviders]"
+echo "-BusName=com.nextcloudgmbh.Nextcloud"
+echo "ObjectPath=/com/nextcloudgmbh/Nextcloud"
+read -p "Press enter to continue."
+kitty -1 -e bash -c "sudoedit /usr/share/applications/com.nextcloud.desktopclient.nextcloud.desktop"
+
+echo "All done! Reboot and enjoy!"
 echo

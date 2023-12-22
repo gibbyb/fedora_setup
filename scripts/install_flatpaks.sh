@@ -19,7 +19,9 @@ flatpak install flathub -y sh.cider.Cider net.rpcs3.RPCS3 \
     net.supertuxkart.SuperTuxKart com.github.unrud.VideoDownloader \
     org.gnome.gitlab.YaLTeR.VideoTrimmer tv.plex.PlexDesktop \
     com.github.micahflee.torbrowser-launcher fr.handbrake.ghb \
-    com.orama_interactive.Pixelorama re.sonny.Workbench
+    com.orama_interactive.Pixelorama re.sonny.Workbench \
+    md.obsidian.Obsidian com.google.EarthPro io.freetubeapp.FreeTube \
+    io.missioncenter.MissionCenter org.localsend.localsend_app 
 
 echo
 echo "Done!"

@@ -1,7 +1,7 @@
-const { BaseAppView, AppDisplay, FolderView, AppSearchProvider } = imports.ui.appDisplay;
-const Main = imports.ui.main;
+import { AppDisplay, FolderView, AppSearchProvider } from "resource:///org/gnome/shell/ui/appDisplay.js";
+import * as Main from "resource:///org/gnome/shell/ui/main.js";
 
-var AppDisplayPatcher = class AppDisplayPatcher {
+export class AppDisplayPatcher {
     constructor(settings) {
         this.settings = settings;
     }
@@ -34,14 +34,18 @@ var AppDisplayPatcher = class AppDisplayPatcher {
 
         AppDisplay.prototype._hider_originalLoadApps = AppDisplay.prototype._loadApps;
         AppDisplay.prototype._loadApps = function() {
-            let apps = this._hider_originalLoadApps();
-            return apps.filter(app => !SETTINGS.get_strv("hidden-apps").includes(app.id));
+            return this._hider_originalLoadApps().map((app) => {
+                app._hider_displayPatchedMenu = true;
+                return app;
+            }).filter(app => !SETTINGS.get_strv("hidden-apps").includes(app.id));
         }
 
         FolderView.prototype._hider_originalLoadApps = FolderView.prototype._loadApps;
         FolderView.prototype._loadApps = function() {
-            let apps = this._hider_originalLoadApps();
-            return apps.filter(app => !SETTINGS.get_strv("hidden-apps").includes(app.id));
+            return this._hider_originalLoadApps().map((app) => {
+                app._hider_displayPatchedMenu = true;
+                return app;
+            }).filter(app => !SETTINGS.get_strv("hidden-apps").includes(app.id));
         }
 
         Main.overview._overview.controls.appDisplay._redisplay();
@@ -67,3 +71,5 @@ var AppDisplayPatcher = class AppDisplayPatcher {
         this._unpatchAppView();
     }
 }
+
+export default AppDisplayPatcher;
