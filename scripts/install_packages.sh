@@ -19,13 +19,14 @@ sudo dnf config-manager --add-repo https://repo.vivaldi.com/stable/vivaldi-fedor
 echo
 echo "Installing necessary packages..."
 echo 
-sudo dnf groupinstall -y "C Development Tools and Libraries"
+sudo dnf install -y ../apps/jdk-21_linux-x64_bin.rpm
+ssudo dnf groupinstall -y "C Development Tools and Libraries"udo dnf groupinstall -y "C Development Tools and Libraries"
 sudo dnf groupinstall -y "Development Tools"
 sudo dnf install -y neovim xclip git curl wget python3 python3-pip nodejs \
     npm gcc g++ make cmake clang clang-tools-extra clang-analyzer htop neofetch \
     steam lutris kitty powerline powerline-fonts nautilus-python php-fpm composer \
     kernel-devel gh qemu-kvm-core libvirt virt-manager java-latest-openjdk-devel \
-    nextcloud-client gparted timeshift jetbrains-mono-fonts-all kmodtool akmods \
+    nextcloud-client timeshift jetbrains-mono-fonts-all kmodtool akmods \
     mokutil openssl maven cargo dotnet-sdk-8.0 code wine go gem \
     luarocks python3-tkinter dnf-plugins-core python3-dnf-plugin-versionlock \
     mangohud firewall-config godot scratch winetricks wireshark seahorse \

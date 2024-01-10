@@ -136,24 +136,9 @@ fi
 echo "Copying init.lua, & lua directory to ~/.config/nvim"
 cp ./config/nvim/init.lua ~/.config/nvim/init.lua
 mkdir -p ~/.config/nvim/lua/gib_nvim
-mkdir -p ~/.config/nvim/after/plugin
 cp ./config/nvim/lua/gib_nvim/* ~/.config/nvim/lua/gib_nvim/
-# Install packer.nvim 
-echo "Installing packer.nvim"
-git clone --depth 1 https://github.com/wbthomason/packer.nvim \
-    ~/.local/share/nvim/site/pack/packer/start/packer.nvim
-echo
-echo "Opening packer.lua. Source the file and run \":PackerSync\""
-echo "to install all plugins."
-echo
-echo "Once complete, close the window."
-kitty -1 -e bash -c "nvim ~/.config/nvim/lua/gib_nvim/packer.lua"
-read -p "Press enter to continue."
-echo echo "Copying after directory to ~/.config/nvim" 
-cp ./config/nvim/after/plugin/* ~/.config/nvim/after/plugin/ 
 echo
 echo "Opening neovim. Run \":Copilot setup\" to setup GitHub Copilot."
-echo ":MasonInstall java-language-server@v0.2.32 installs the only working Java LSP."
 echo
 echo "Once complete, close the window."
 echo

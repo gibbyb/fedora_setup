@@ -37,6 +37,9 @@ vim.keymap.set({"n", "v"}, "<leader>y", [["+y]])
 -- Yank (copy) the entire buffer to the system clipboard
 vim.keymap.set("n", "<leader>Y", [["+Y]])
 
+-- Yank all the text in the file to the system clipboard
+vim.keymap.set("n", "<leader>YY", "gg\"+yG")
+
 -- Delete the selection without yanking (copying) it
 vim.keymap.set({"n", "v"}, "<leader>d", [["_d]])
 
